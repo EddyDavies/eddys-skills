@@ -1,0 +1,103 @@
+#!/bin/bash
+# arcopen: open a URL in Arc WITHOUT stealing focus, into a named space.
+#
+#   arcopen <url> [space-title]
+#
+# Creates the tab via AppleScript (never `open <url>`), so Arc is not
+# activated: no focus steal, no desktop switch. The tab lands in the given
+# space (default: "vibe coding"; pass "active" to use whichever space is
+# current). Arc briefly switches its visible space to the new tab, so the
+# previously active space is refocused afterwards (by title, since object
+# specifiers go stale after the make). Then notifies via the same
+# Ghostty/notification path as notify-web-ready.sh.
+#
+# If the named space does not exist (renamed?), the tab opens in the active
+# space instead. If Arc scripting is unavailable (not running, stalled, or
+# no Automation permission), falls back to notify-web-ready.sh so the URL
+# still reaches you on the clipboard.
+#
+# Per-repo override: a line like "Arc space: content" in the nearest
+# CLAUDE.md (or .claude/CLAUDE.md), walking up from the current directory,
+# overrides the default space. Precedence: arg 2, then CLAUDE.md, then
+# DEFAULT_SPACE.
+set -uo pipefail
+
+DEFAULT_SPACE="vibe coding"
+
+find_space_override() {
+  local dir="$PWD" f s
+  while :; do
+    for f in "$dir/CLAUDE.md" "$dir/.claude/CLAUDE.md"; do
+      if [[ -f "$f" ]]; then
+        s=$(grep -iE '^[-* ]*arc[ -]?space:' "$f" 2>/dev/null | head -1 \
+            | sed -E 's/^[^:]*:[[:space:]]*//; s/[[:space:]`"'"'"']*$//; s/^[`"'"'"']*//')
+        if [[ -n "$s" ]]; then printf '%s' "$s"; return 0; fi
+      fi
+    done
+    [[ "$dir" == "/" ]] && break
+    dir=$(dirname "$dir")
+  done
+  return 1
+}
+
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+  echo "usage: arcopen <url> [space-title|active]" >&2
+  exit 2
+fi
+url="$1"
+space="${2:-}"
+if [[ -z "$space" ]]; then
+  space="$(find_space_override)" || space="$DEFAULT_SPACE"
+fi
+[[ "$space" == "active" ]] && space=""
+
+notify() { # notify <label> <body>
+  if { true 2>/dev/null >/dev/tty; } 2>/dev/null; then
+    printf '\033]777;notify;%s;%s\033\\' "Claude: $1" "$2" >/dev/tty
+  else
+    osascript -e "display notification \"$2\" with title \"Claude: $1\"" >/dev/null 2>&1
+  fi
+}
+
+# Kept in a variable (not a heredoc inside a command substitution) because
+# macOS bash 3.2 mis-parses quotes in that combination.
+read -r -d '' script <<'EOF' || true
+on run argv
+	set theUrl to item 1 of argv
+	set spaceName to item 2 of argv
+	with timeout of 8 seconds
+		tell application "Arc"
+			if (count of windows) is 0 then make new window
+			tell front window
+				if spaceName is not "" then
+					set origTitle to title of active space
+					set ts to title of every space
+					repeat with i from 1 to (length of ts)
+						if (item i of ts) is spaceName then
+							tell space i to make new tab with properties {URL:theUrl}
+							if origTitle is not spaceName then tell space origTitle to focus
+							return "opened in space " & spaceName
+						end if
+					end repeat
+					-- named space missing: fall through to active space
+				end if
+				tell active space to make new tab with properties {URL:theUrl}
+				return "opened in active space"
+			end tell
+		end tell
+	end timeout
+end run
+EOF
+
+if pgrep -xq Arc; then
+  if result="$(osascript -e "$script" "$url" "$space" 2>&1)"; then
+    notify "Page loaded in Arc" "$result: $url"
+    echo "arcopen: $result: $url"
+    exit 0
+  fi
+  echo "arcopen: Arc scripting failed ($result); falling back to notify" >&2
+else
+  echo "arcopen: Arc not running; falling back to notify" >&2
+fi
+
+exec bash ~/.claude/hooks/notify-web-ready.sh "$url" "Web page ready"

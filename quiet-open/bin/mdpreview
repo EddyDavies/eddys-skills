@@ -1,0 +1,32 @@
+#!/bin/bash
+# mdpreview — open a markdown file in MacDown with the editor pane collapsed (preview only).
+#
+# MacDown has no CLI flag for layout, but it persists each window's split-view
+# frame per file:// URL in its prefs. So we pre-write a collapsed-editor frame
+# for this exact file, then open it. Pure CLI — no Accessibility/AppleScript.
+#
+# Usage: mdpreview <file.md>  (one file per call)
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  echo "usage: mdpreview <file.md>" >&2
+  exit 2
+fi
+
+# MacDown keys on the resolved (symlink-free) absolute path, e.g. /tmp -> /private/tmp.
+path="$(/usr/bin/python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$1")"
+if [[ ! -f "$path" ]]; then
+  echo "mdpreview: no such file: $1" >&2
+  exit 1
+fi
+
+# Build the file:// URL the same way MacDown stores it (percent-encode the path).
+url="$(/usr/bin/python3 -c 'import sys,urllib.parse as u; print("file://"+u.quote(sys.argv[1]))' "$path")"
+
+# Two NSSplitView subviews: editor (left, collapsed: width 0 + YES flag), preview (right, wide).
+# MacDown re-lays-out the preview to the real window width on open; the number just needs to be large.
+defaults write com.uranusjr.macdown "NSSplitView Subview Frames ${url}" -array \
+  "0.000000, 0.000000, 0.000000, 1000.000000, YES, NO" \
+  "0.000000, 0.000000, 2000.000000, 1000.000000, NO, NO"
+
+exec open -a MacDown "$path"

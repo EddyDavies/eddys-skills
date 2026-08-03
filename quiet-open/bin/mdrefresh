@@ -1,0 +1,73 @@
+#!/bin/bash
+# mdrefresh — make MacDown reload a file that changed on disk.
+#
+# MacDown (0.7.3) has no file watching, and its scripting `text` setter updates
+# the editor without re-rendering the preview (render only fires on real
+# keystrokes), so the only reliable reload is close + reopen. This automates it:
+#   - finds the open document by path (no-op if the file is not open in MacDown)
+#   - skips the reload if the document has unsaved edits (never discards work)
+#   - closes without saving, reopens with `open -g` (no focus steal)
+# Window size + split layout are restored from MacDown's per-URL prefs.
+#
+# Usage: mdrefresh <file.md>   (one file per call; exit 0 if not open)
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  echo "usage: mdrefresh <file.md>" >&2
+  exit 2
+fi
+
+path="$(/usr/bin/python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$1")"
+if [[ ! -f "$path" ]]; then
+  echo "mdrefresh: no such file: $1" >&2
+  exit 1
+fi
+
+# Nothing to do if MacDown is not running.
+if ! pgrep -xq MacDown; then
+  exit 0
+fi
+
+# Kept in a variable (not a heredoc inside $()) because macOS bash 3.2
+# mis-parses quotes in that combination.
+read -r -d '' script <<'EOF' || true
+on run argv
+	set p to item 1 of argv
+	with timeout of 10 seconds
+		tell application "MacDown"
+			-- iterating documents directly breaks on MacDown scripting;
+			-- bulk-fetch the file list and index instead
+			set fs to file of documents
+			repeat with i from 1 to (length of fs)
+				try
+					set docPath to POSIX path of (item i of fs as alias)
+				on error
+					set docPath to ""
+				end try
+				if docPath is p then
+					if modified of document i then return "dirty"
+					close document i saving no
+					return "reload"
+				end if
+			end repeat
+			return "not-open"
+		end tell
+	end timeout
+end run
+EOF
+
+result="$(osascript -e "$script" "$path")"
+
+case "$result" in
+  reload)
+    # -g: reopen without bringing MacDown to the front / switching desktops.
+    exec open -g -a MacDown "$path"
+    ;;
+  dirty)
+    echo "mdrefresh: '$path' has unsaved edits in MacDown; not reloading" >&2
+    exit 3
+    ;;
+  *)
+    exit 0
+    ;;
+esac
