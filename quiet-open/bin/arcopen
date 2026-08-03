@@ -5,8 +5,8 @@
 #
 # Creates the tab via AppleScript (never `open <url>`), so Arc is not
 # activated: no focus steal, no desktop switch. The tab lands in the given
-# space (default: "vibe coding"; pass "active" to use whichever space is
-# current). Arc briefly switches its visible space to the new tab, so the
+# space (pass "active" to force whichever space is current). Arc briefly
+# switches its visible space to the new tab, so the
 # previously active space is refocused afterwards (by title, since object
 # specifiers go stale after the make). Then notifies via the same
 # Ghostty/notification path as notify-web-ready.sh.
@@ -16,27 +16,32 @@
 # no Automation permission), falls back to notify-web-ready.sh so the URL
 # still reaches you on the clipboard.
 #
-# Per-repo override: a line like "Arc space: content" in the nearest
-# CLAUDE.md (or .claude/CLAUDE.md), walking up from the current directory,
-# overrides the default space. Precedence: arg 2, then CLAUDE.md, then
-# DEFAULT_SPACE.
+# The target space comes from a line like "Arc space: content" (nothing else
+# on the line) in the nearest CLAUDE.md (or .claude/CLAUDE.md), walking up
+# from the current directory, then from the user's global
+# ~/.claude/CLAUDE.md, which acts as the personal default. Precedence:
+# arg 2, then repo CLAUDE.md, then global CLAUDE.md, then the active space.
+# Nothing is hardcoded here, so the script is shareable as is.
 set -uo pipefail
 
-DEFAULT_SPACE="vibe coding"
+space_from_file() { # space_from_file <file>
+  local s
+  [[ -f "$1" ]] || return 1
+  s=$(grep -iE '^[-* ]*arc[ -]?space:' "$1" 2>/dev/null | head -1 \
+      | sed -E 's/^[^:]*:[[:space:]]*//; s/[[:space:]`"'"'"']*$//; s/^[`"'"'"']*//')
+  [[ -n "$s" ]] || return 1
+  printf '%s' "$s"
+}
 
-find_space_override() {
-  local dir="$PWD" f s
+find_space() {
+  local dir="$PWD"
   while :; do
-    for f in "$dir/CLAUDE.md" "$dir/.claude/CLAUDE.md"; do
-      if [[ -f "$f" ]]; then
-        s=$(grep -iE '^[-* ]*arc[ -]?space:' "$f" 2>/dev/null | head -1 \
-            | sed -E 's/^[^:]*:[[:space:]]*//; s/[[:space:]`"'"'"']*$//; s/^[`"'"'"']*//')
-        if [[ -n "$s" ]]; then printf '%s' "$s"; return 0; fi
-      fi
-    done
+    space_from_file "$dir/CLAUDE.md" && return 0
+    space_from_file "$dir/.claude/CLAUDE.md" && return 0
     [[ "$dir" == "/" ]] && break
     dir=$(dirname "$dir")
   done
+  space_from_file "$HOME/.claude/CLAUDE.md" && return 0
   return 1
 }
 
@@ -47,7 +52,7 @@ fi
 url="$1"
 space="${2:-}"
 if [[ -z "$space" ]]; then
-  space="$(find_space_override)" || space="$DEFAULT_SPACE"
+  space="$(find_space)" || space=""
 fi
 [[ "$space" == "active" ]] && space=""
 

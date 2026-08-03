@@ -9,7 +9,7 @@ Everything Claude opens for Eddy must not steal focus or switch desktops. This f
 
 ## The flow
 
-- **Web links:** never `open <url>`. Run `arcopen '<url>' [space|active]` instead: it creates a background tab in Arc via AppleScript (Arc is never activated) and sends a notification. Space precedence: explicit argument, then an `Arc space: <name>` line in the nearest CLAUDE.md walking up from cwd, then the default "vibe coding". Falls back to `notify-web-ready.sh` (notification plus URL on clipboard) when Arc is unavailable. The `block-browser-open.sh` PreToolUse hook enforces this by denying plain `open` of http(s) URLs.
+- **Web links:** never `open <url>`. Run `arcopen '<url>' [space|active]` instead: it creates a background tab in Arc via AppleScript (Arc is never activated) and sends a notification. Space precedence: explicit argument, then an `Arc space: <name>` line in the nearest CLAUDE.md walking up from cwd, then the same line in the global `~/.claude/CLAUDE.md` (the personal default), then Arc's active space. Nothing is hardcoded in the script. The `Arc space:` line must contain only the space name after the colon. Falls back to `notify-web-ready.sh` (notification plus URL on clipboard) when Arc is unavailable. The `block-browser-open.sh` PreToolUse hook enforces this by denying plain `open` of http(s) URLs.
 - **Markdown to review:** `mdpreview <file.md>` opens it in MacDown, preview pane only. A PostToolUse hook on Write|Edit runs `mdrefresh` on any edited `.md`, so an open MacDown document reloads automatically when Claude edits the file (close and reopen under the hood, no focus steal, skipped if the document has unsaved edits).
 - **Local artifacts (HTML, PDFs, images):** plain `open <path>` is fine and expected.
 
