@@ -321,11 +321,23 @@ def main():
             return f"{now}→?%"
         return f"{now}→{min(100, round(now + usd(k) * rates[lim]))}%"
 
+    def resets(lim):
+        # " ↺2h14m" for the 5h window, " ↺Thu 09:00" for the week; "" when unknown.
+        at = now_usage.get(f"{lim}_reset") if now_usage else None
+        if not at:
+            return ""
+        left = at - datetime.now(timezone.utc).timestamp()
+        if left <= 0:
+            return " ↺done"
+        if lim == "h5" or left < 86400:
+            return f" ↺{fmt_idle(left / 60)}"
+        return f" ↺{datetime.fromtimestamp(at).strftime('%a %H:%M')}"
+
     fresh_k = base_k + notes_k
     head = f"❄ nothing sent · idle {fmt_idle(idle_min)}"
     if now_usage:
-        head += (f" · 5h {bar(now_usage['h5'])} {now_usage['h5']}%"
-                 f" · wk {bar(now_usage['d7'])} {now_usage['d7']}%")
+        head += (f" · 5h {bar(now_usage['h5'])} {now_usage['h5']}%{resets('h5')}"
+                 f" · wk {bar(now_usage['d7'])} {now_usage['d7']}%{resets('d7')}")
     if images:
         head += f" · 🖼 {len(images)} saved"
 

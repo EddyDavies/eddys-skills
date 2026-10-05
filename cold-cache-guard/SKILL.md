@@ -12,7 +12,7 @@ The hook catches that message before it is sent, writes restart notes from the t
 ## What the block looks like
 
 ```
-❄ nothing sent · idle 3h 5m · 5h ░░░░░░░░░░ 1% · wk ▓▓▓▓▓▓▓▓░░ 77%
+❄ nothing sent · idle 3h 5m · 5h ░░░░░░░░░░ 1% ↺4h 52m · wk ▓▓▓▓▓▓▓▓░░ 77% ↺Fri 00:52
 
 ↻  214k  5h 1→18%     wk 77→80%
 📋  65k  5h 1→6%      wk 77→78%    ⟨63k+2k⟩
@@ -23,6 +23,7 @@ Context: this picks up an earlier session. Read ~/.claude/handoffs/<project>/<st
 Key:
 
 - **❄** the cache is cold and nothing was sent. The bars are your current 5h and weekly plan usage.
+- **↺** when that limit resets: time left for the 5h window, day and time for the week (time left once under a day). `↺done` means the reset has passed since the statusline last logged.
 - **↻** continue here: send the same message again. The second send always goes through.
 - **📋** start fresh: paste the clipboard into a new chat. It holds the Context line and then your message (pasted-text wrappers removed).
 - **12→21%** where that limit is now, and where it would land after that path's cache write.
