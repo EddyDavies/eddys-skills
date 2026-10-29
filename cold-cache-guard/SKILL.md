@@ -45,7 +45,11 @@ These are estimates: limits move in whole points, Anthropic doesn't publish thei
 
 ## Tuning
 
-Env vars: `COLD_CACHE_IDLE_MIN` (default 55), `COLD_CACHE_MIN_TOKENS` (default 200000), `COLD_CACHE_OFF=1` to disable.
+Automatic prompts are never blocked: background task completions (`<task-notification>`) and messages from other chats or agents (`<cross-session-message>`, `<agent-message>`, `<teammate-message>`), and scheduled prompts (a `CronCreate` fire, matched by its `scheduled_task_fire` row or the prompt the chat scheduled; `/loop` wakeups). A chat with `/remote-control` on (its transcript has `bridge-session` rows) is never blocked either: phone messages look typed, and a fresh-chat paste is no use there. They fire while you're away, so a block would only stall the work.
+
+Threshold: a chat is blocked from 350k tokens of context. Once the 5h limit passes 70% the threshold slides down linearly, reaching 200k at 90% and staying there; when the 5h window has reset since the last statusline reading, it is back at 350k.
+
+Env vars: `COLD_CACHE_IDLE_MIN` (default 55), `COLD_CACHE_MIN_TOKENS` (default 350000), `COLD_CACHE_FLOOR_TOKENS` (default 200000), `COLD_CACHE_RAMP_FROM` and `COLD_CACHE_RAMP_TO` (5h %, default 70 and 90), `COLD_CACHE_OFF=1` to disable.
 
 ## Testing a change
 
@@ -53,7 +57,7 @@ Run the hook by hand against a real transcript with the thresholds at zero, and 
 
 ```bash
 echo '{"transcript_path":"<a session .jsonl>","session_id":"dryrun-test","cwd":"'"$PWD"'","prompt":"test"}' \
-  | COLD_CACHE_IDLE_MIN=0 COLD_CACHE_MIN_TOKENS=0 python3 hooks/cold-cache-guard.py
+  | COLD_CACHE_IDLE_MIN=0 COLD_CACHE_MIN_TOKENS=0 COLD_CACHE_FLOOR_TOKENS=0 python3 hooks/cold-cache-guard.py
 ```
 
 Afterwards delete `~/.claude/state/cold-cache/dryrun-test.json` and the notes file it wrote.

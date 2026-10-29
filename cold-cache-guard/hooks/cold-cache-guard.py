@@ -10,8 +10,11 @@ move in your 5h and weekly plan limits, calibrated from usage-log.sh.
 Sending the same session another message after a block lets it through, so
 you can always choose to continue.
 
-Tune with env vars: COLD_CACHE_IDLE_MIN (default 55), COLD_CACHE_MIN_TOKENS
-(default 200000), COLD_CACHE_OFF=1 to disable.
+Blocks from 350k tokens; as the 5h limit fills past 70% the line slides down to
+200k at 90%. Tune with env vars: COLD_CACHE_IDLE_MIN (default 55),
+COLD_CACHE_MIN_TOKENS (default 350000), COLD_CACHE_FLOOR_TOKENS (default 200000),
+COLD_CACHE_RAMP_FROM / COLD_CACHE_RAMP_TO (5h %, default 70 / 90), COLD_CACHE_OFF=1
+to disable.
 """
 
 import json
@@ -24,7 +27,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 IDLE_MIN = float(os.environ.get("COLD_CACHE_IDLE_MIN", "55"))
-MIN_TOKENS = int(os.environ.get("COLD_CACHE_MIN_TOKENS", "200000"))
+MIN_TOKENS = int(os.environ.get("COLD_CACHE_MIN_TOKENS", "350000"))
+# Near the end of the 5h allowance a rebuild hurts more, so the threshold slides
+# from MIN_TOKENS down to FLOOR_TOKENS as 5h usage climbs from RAMP_FROM to RAMP_TO %.
+FLOOR_TOKENS = int(os.environ.get("COLD_CACHE_FLOOR_TOKENS", "200000"))
+RAMP_FROM = float(os.environ.get("COLD_CACHE_RAMP_FROM", "70"))
+RAMP_TO = float(os.environ.get("COLD_CACHE_RAMP_TO", "90"))
+# Prompts the harness sends on its own (background task done, a message from another
+# chat or agent). They fire while the user is away, so blocking one just stalls the work.
+AUTO_PROMPT = re.compile(r"\s*<(task-notification|cross-session-message|agent-message|teammate-message)\b")
 STATE_DIR = Path.home() / ".claude" / "state" / "cold-cache"
 HANDOFF_DIR = Path.home() / ".claude" / "handoffs"
 # Anthropic list input $/MTok by model family; only a common unit, never shown.
@@ -37,9 +48,11 @@ def plan_rates():
     """Plan % per list dollar for the 5h and weekly limits, from the statusline's usage log.
 
     Walks the log in time order, summing each session's cost growth, and pairs it
-    with how far each limit's % rose. A stretch where a % fell (a reset) is dropped.
-    Returns ({"h5": rate, "d7": rate}, latest reading); a rate is None until it has
-    seen at least 3 points of movement.
+    with how far each limit's % rose. Chats log their own copy of the limits, and an
+    idle one can log a stale, lower %; so within one reset window only a new high
+    counts as a rise, and rows from an older window are skipped. Cost from before a
+    window starts is dropped. Returns ({"h5": rate, "d7": rate}, latest reading); a
+    rate is None until it has seen at least 3 points of movement.
     """
     rows = []
     try:
@@ -58,25 +71,38 @@ def plan_rates():
     cutoff = rows[-1]["ts"] - 7 * 86400
     rates = {}
     for lim in ("h5", "d7"):
-        cost_by_sid, prev_pct, pending, d_pct, d_usd = {}, None, 0.0, 0.0, 0.0
+        cost_by_sid, window, high, pending, d_pct, d_usd = {}, None, None, 0.0, 0.0, 0.0
         for r in rows:
             sid, cost, pct = r.get("sid"), r["cost"], r.get(lim)
             before = cost_by_sid.get(sid)
             cost_by_sid[sid] = cost
             if before is not None and cost > before and r["ts"] >= cutoff:
                 pending += cost - before
-            if pct is None:
+            # Reset times jitter by a few seconds between readings; round to 10 min.
+            win = round((r.get(f"{lim}_reset") or 0) / 600)
+            if pct is None or (window is not None and win < window):
                 continue
-            if prev_pct is not None and pct >= prev_pct and r["ts"] >= cutoff:
-                if pct > prev_pct:
-                    d_pct += pct - prev_pct
-                    d_usd += pending
-                    pending = 0.0
-            else:
+            if win != window:
+                window, high, pending = win, pct, 0.0
+                continue
+            if pct > high and r["ts"] >= cutoff:
+                d_pct += pct - high
+                d_usd += pending
                 pending = 0.0
-            prev_pct = pct
+            high = max(high, pct)
         rates[lim] = d_pct / d_usd if d_pct >= 3 and d_usd > 0 else None
     return rates, rows[-1]
+
+
+def threshold(now_usage):
+    """Context size that triggers a block, given the latest plan reading."""
+    h5 = now_usage.get("h5") if now_usage else None
+    reset = now_usage.get("h5_reset") if now_usage else None
+    # No reading, or the 5h window has reset since it was logged: usage is low.
+    if h5 is None or (reset and reset <= datetime.now(timezone.utc).timestamp()):
+        return MIN_TOKENS
+    t = min(1.0, max(0.0, (h5 - RAMP_FROM) / max(1e-9, RAMP_TO - RAMP_FROM)))
+    return round(MIN_TOKENS - t * (MIN_TOKENS - FLOOR_TOKENS))
 
 
 def unwrap_pastes(text):
@@ -125,6 +151,33 @@ def load(path):
                 continue
             rows.append(r)
     return rows
+
+
+def is_scheduled(rows, prompt):
+    """True when the prompt is a scheduled fire (CronCreate, /loop wakeup), not typed.
+
+    A cron fire logs a scheduled_task_fire row carrying the (possibly truncated)
+    prompt just before the hook runs. In case that row lands late, also match any
+    prompt this chat scheduled itself with CronCreate or ScheduleWakeup.
+    """
+    p = prompt.strip()
+    if not p:
+        return False
+    if p.startswith("<<autonomous-loop"):
+        return True
+    for r in rows:
+        if r.get("subtype") == "scheduled_task_fire":
+            fired = (r.get("prompt") or "").strip()
+            if fired and p.startswith(fired):
+                return True
+        if r.get("type") != "assistant":
+            continue
+        for c in (r.get("message") or {}).get("content") or []:
+            if (isinstance(c, dict) and c.get("type") == "tool_use"
+                    and c.get("name") in ("CronCreate", "ScheduleWakeup")
+                    and ((c.get("input") or {}).get("prompt") or "").strip() == p):
+                return True
+    return False
 
 
 def git(cwd, *args):
@@ -229,10 +282,19 @@ def main():
     if os.environ.get("COLD_CACHE_OFF") == "1":
         return
     hook = json.load(sys.stdin)
+    if AUTO_PROMPT.match(hook.get("prompt") or ""):
+        return
     tp = hook.get("transcript_path")
     if not tp or not os.path.exists(tp):
         return
     rows = load(tp)
+    # Scheduled prompts fire while the user is away too; same reasoning as AUTO_PROMPT.
+    if is_scheduled(rows, hook.get("prompt") or ""):
+        return
+    # Remote Control chats: messages from the phone look typed, and the fresh-chat
+    # paste is useless there, so a chat with /remote-control on is never blocked.
+    if any(r.get("type") == "bridge-session" for r in rows):
+        return
     last = next(
         (r for r in reversed(rows)
          if r.get("type") == "assistant" and (r.get("message") or {}).get("usage")),
@@ -244,7 +306,10 @@ def main():
     ctx = (u.get("input_tokens", 0) + u.get("cache_read_input_tokens", 0)
            + u.get("cache_creation_input_tokens", 0))
     idle_min = (datetime.now(timezone.utc) - parse_ts(last["timestamp"])).total_seconds() / 60
-    if idle_min < IDLE_MIN or ctx < MIN_TOKENS:
+    if idle_min < IDLE_MIN or ctx < min(MIN_TOKENS, FLOOR_TOKENS):
+        return
+    rates, now_usage = plan_rates()
+    if ctx < threshold(now_usage):
         return
 
     # Second message after a block: the user chose to continue, let it through.
@@ -303,7 +368,6 @@ def main():
     # Dollars are only the common unit; what's shown is the share of plan limits.
     model = (last["message"].get("model") or "").lower()
     in_price = next((p for k, p in INPUT_PRICE.items() if k in model), 5)
-    rates, now_usage = plan_rates()
 
     def usd(k):
         return k * 1000 * in_price * 2 / 1e6
