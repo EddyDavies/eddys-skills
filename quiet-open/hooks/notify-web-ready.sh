@@ -13,6 +13,17 @@ else
   body="URL on request"
 fi
 
+# terminal-notifier: clicking opens the URL (no tab exists yet on this path),
+# and each new one replaces the last (-group) so they don't pile up.
+tn=$(command -v terminal-notifier || echo /opt/homebrew/bin/terminal-notifier)
+if [ -x "$tn" ]; then
+  if [ -n "$url" ]; then
+    "$tn" -title "Claude: $label" -message "$body" -group claude-web-ready -open "$url" >/dev/null 2>&1
+  else
+    "$tn" -title "Claude: $label" -message "$body" -group claude-web-ready >/dev/null 2>&1
+  fi && { echo "Notified: $label - $body"; exit 0; }
+fi
+
 # Ghostty OSC 777 notification - only possible when we have a tty
 # (interactive use); Claude's Bash tool has no controlling terminal.
 if { true 2>/dev/null >/dev/tty; } 2>/dev/null; then
