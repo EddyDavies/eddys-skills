@@ -1,0 +1,97 @@
+{
+ "title": "LINE, KakaoTalk, WeChat",
+ "slides": [
+  {
+   "kicker": "Bottom line",
+   "title": "All three can host Pally like Telegram, but none is as open",
+   "points": [
+    "Each has an official way for a bot to chat with users.",
+    "Each one limits Pally in a different way.",
+    "Order: LINE first, WeChat as a pilot, KakaoTalk later."
+   ],
+   "visual": "<table><tr><th></th><th>LINE</th><th>WeChat</th><th>KakaoTalk</th></tr><tr><td>Group chats</td><td class=\"dk-g\">Yes</td><td class=\"dk-r\">No</td><td class=\"dk-r\">No</td></tr><tr><td>Pally can message first</td><td class=\"dk-g\">Yes, paid</td><td class=\"dk-w\">Probably</td><td class=\"dk-w\">Yes, paid</td></tr><tr><td>Typing dots</td><td class=\"dk-g\">Yes</td><td class=\"dk-g\">Yes</td><td class=\"dk-r\">No</td></tr><tr><td>Platform risk</td><td class=\"dk-g\">Low</td><td class=\"dk-r\">High</td><td class=\"dk-g\">Low</td></tr><tr><td>Verdict</td><td class=\"dk-g\">Build first</td><td class=\"dk-w\">Pilot</td><td class=\"dk-r\">Hold</td></tr></table>",
+   "details": [
+    {"label": "Where our users already are", "body": "<p>Pally users whose phone number comes from a country where each app is the main messenger. Today they reach Pally over iMessage, WhatsApp or Telegram, so this shows who is already here, not how many new users a channel would bring.</p><div class=\"dk-bars\"><div class=\"dk-bar\" style=\"--v:100%\"><span>WeChat<small>China, Hong Kong</small></span><i></i><b>155</b></div><div class=\"dk-bar\" style=\"--v:43%\"><span>LINE<small>Japan, Indonesia, Thailand, Taiwan</small></span><i></i><b>67</b></div><div class=\"dk-bar\" style=\"--v:17%\"><span>KakaoTalk<small>South Korea</small></span><i></i><b>26</b></div></div><p>Out of 5,836 users with a phone number: about 2.7%, 1.1% and 0.4%. For scale, the US alone is 3,043.</p>"},
+    {"label": "Two different things we could build", "body": "<table><tr><th>Option</th><th>What it means</th><th>Pally does this today on</th></tr><tr><td>Pally's own account</td><td>Users message a Pally bot, like a contact</td><td>Telegram, iMessage</td></tr><tr><td>The user's own account</td><td>Pally reads and sends from the user's own chats</td><td>WhatsApp</td></tr></table><p>This report is about the first. The second is covered on the \"Own accounts\" slide.</p>"}
+   ]
+  },
+  {
+   "kicker": "1. LINE",
+   "title": "LINE is the closest fit to Telegram",
+   "tag": {"tone": "good", "text": "Build first"},
+   "points": [
+    "A bot account that works in 1:1 chats and groups, with typing dots.",
+    "Any company can sign up, including foreign ones.",
+    "The catch: messages Pally starts, or slow replies, cost money."
+   ],
+   "details": [
+    {"label": "What it costs (Japan prices)", "body": "<p>Quick replies to a user are free. Anything else is counted per person it reaches, against a monthly plan.</p><table><tr><th>Plan</th><th class=\"n\">Per month</th><th class=\"n\">Messages included</th></tr><tr><td>Free</td><td class=\"n\">¥0</td><td class=\"n\">200</td></tr><tr><td>Light</td><td class=\"n\">¥5,000</td><td class=\"n\">5,000</td></tr><tr><td>Standard</td><td class=\"n\">¥15,000</td><td class=\"n\">30,000 + extra</td></tr></table><p>A free reply only works for about a minute after the user writes. Pally often takes longer than that, so in practice most replies will be paid.</p>"},
+    {"label": "How Pally would talk to LINE", "body": "<table><tr><th>Job</th><th>In plain words</th><th>Technical name</th></tr><tr><td>Hear messages</td><td>LINE sends each message to Pally, signed so we know it is real</td><td><code>webhook</code></td></tr><tr><td>Free reply</td><td>Answer within the time window</td><td><code>reply</code></td></tr><tr><td>Paid message</td><td>Send any time</td><td><code>push</code></td></tr><tr><td>Typing dots</td><td>Show Pally is working</td><td><code>loading animation</code></td></tr></table>"}
+   ]
+  },
+  {
+   "kicker": "2. WeChat",
+   "title": "WeChat now has an official way to put an agent in a personal chat",
+   "tag": {"tone": "warn", "text": "Pilot, check access first"},
+   "points": [
+    "Tencent's ClawBot (March 2026) adds an AI agent as a WeChat contact.",
+    "One-to-one chats only; each user links it by scanning a QR code.",
+    "Still rolling out slowly, with reports of lost messages."
+   ],
+   "details": [
+    {"label": "The two ways into WeChat", "body": "<table><tr><th></th><th>ClawBot (recommended)</th><th>Business account</th></tr><tr><td>Feels like</td><td>A personal contact</td><td>A brand page you follow</td></tr><tr><td>Pally can message first</td><td class=\"dk-w\">Seems so, unproven</td><td class=\"dk-r\">Only 5 messages in 48 hours after the user writes</td></tr><tr><td>Cost</td><td>Free today</td><td>US$99 a year verification</td></tr><tr><td>Maturity</td><td class=\"dk-r\">Early, limited rollout</td><td class=\"dk-g\">Established</td></tr></table><p>The business account limit breaks reminders and automations, so ClawBot is the better bet if it works.</p>"},
+    {"label": "Risks to check before building", "body": "<ul><li>It may only exist in the mainland China version of the app, not international WeChat.</li><li>Developers report messages that WeChat says were sent but never arrive (October 2026).</li><li>Tencent publishes example code for it, so the build itself is well documented.</li></ul>"}
+   ]
+  },
+  {
+   "kicker": "3. KakaoTalk",
+   "title": "KakaoTalk is possible but the hardest fit",
+   "tag": {"tone": "bad", "text": "Hold"},
+   "points": [
+    "Pally must answer every message within 5 seconds.",
+    "The real answer gets one chance to arrive, within about a minute.",
+    "Anything after that, or anything Pally starts, is paid."
+   ],
+   "details": [
+    {"label": "How a reply reaches the user", "body": "<table><tr><th>Moment</th><th>What happens</th><th>Cost</th></tr><tr><td>Within 5 seconds</td><td>Pally says \"working on it\"</td><td>Free</td></tr><tr><td>Within about 1 minute</td><td>Pally sends the real answer, once</td><td>Free</td></tr><tr><td>Later, or Pally starts</td><td>Sent as a separate notification</td><td>Paid per message</td></tr></table><p>The one-minute answer needs Kakao to approve the feature first.</p>"},
+    {"label": "Can a non-Korean company do it?", "body": "<p>Yes, since August 2026: a foreign company with an international business ID (D-U-N-S number) can get a verified business channel. Pally has 26 users in Korea today.</p>"}
+   ]
+  },
+  {
+   "kicker": "What has to change in Pally",
+   "title": "Pally's channel rules cannot describe these apps yet",
+   "points": [
+    "Pally knows \"can always message\" or \"can message for X hours\", nothing else.",
+    "Pally does not know that some messages cost money.",
+    "Pally assumes one shared bot, not one per user."
+   ],
+   "details": [
+    {"label": "Which app needs which change", "body": "<table><tr><th>Change</th><th>LINE</th><th>WeChat</th><th>KakaoTalk</th></tr><tr><td>Know a message costs money</td><td class=\"dk-r\">Needed</td><td></td><td class=\"dk-r\">Needed</td></tr><tr><td>Limits beyond \"X hours\"</td><td></td><td class=\"dk-w\">Business account only</td><td class=\"dk-r\">Needed</td></tr><tr><td>One bot per user</td><td></td><td class=\"dk-r\">Needed</td><td></td></tr><tr><td>No group chats</td><td></td><td class=\"dk-g\">Already supported</td><td class=\"dk-g\">Already supported</td></tr></table><p>These rules live in one file every channel fills in (<code>CHANNEL_FACTS</code>).</p>"}
+   ]
+  },
+  {
+   "kicker": "Own accounts",
+   "title": "Reading the user's own chats is a separate project",
+   "points": [
+    "Ready-made connectors exist for LINE and KakaoTalk.",
+    "WeChat has none, and Tencent bans unofficial apps.",
+    "This fits the Matrix connector proposal from the same day."
+   ],
+   "details": [
+    {"label": "Options per app", "body": "<table><tr><th>App</th><th>How</th><th>Risk</th></tr><tr><td>LINE</td><td>Joins as a second device on the user's account</td><td class=\"dk-w\">Medium</td></tr><tr><td>KakaoTalk</td><td>Community-built connector, less maintained</td><td class=\"dk-w\">Medium</td></tr><tr><td>WeChat</td><td>None that is maintained</td><td class=\"dk-r\">High, account bans</td></tr></table><p>Proposal: <code>reports/matrix-bridge-messaging-proposal-20261023.html</code></p>"}
+   ]
+  },
+  {
+   "kicker": "Your call",
+   "title": "Three decisions",
+   "points": [
+    "Which first: LINE (easy, smaller audience) or WeChat (bigger audience, riskier)?",
+    "Are we willing to pay for LINE messages Pally starts?",
+    "Start building LINE now?"
+   ],
+   "details": [
+    {"label": "What was not checked", "body": "<ul><li>Whether ClawBot works on international WeChat.</li><li>Whether ClawBot lets Pally message first.</li><li>KakaoTalk's paid notification prices.</li><li>LINE's exact free reply window today.</li></ul>"}
+   ]
+  }
+ ]
+}
