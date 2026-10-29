@@ -1,0 +1,42 @@
+Who's Buying Distribution (And Why)
+
+2026-06-29
+
+Something shifted in M&A over the past three years.
+Companies used to acquire for technology. For talent. For IP. Now, increasingly, they’re acquiring for one thing: the user base.
+Clay bought blogs. HubSpot bought newsletters. PE firms are rolling up accounting practices, MSPs, and property managers - not for their systems, but for their client relationships. The pattern is quiet, but it’s accelerating.
+The question worth asking: who exactly is writing these checks, and what does that reveal about where value actually lives?
+Tier 1: AI Rollup Platforms
+General Catalyst has committed $1.5 billion to incubating AI-native companies in specific verticals, then using those companies as acquisition vehicles to buy established firms, and their customers, in the same sectors.
+The key phrase is “and their customers.”
+Thrive Capital, Lightspeed, and 8VC are running similar playbooks. They’ve built the AI. They’ve raised the capital. What they need is distribution, fast.
+These platforms aren’t acquiring for technology - the acquired company’s tech stack usually gets retired. They’re not acquiring for talent - most of the team churns within 18 months. They’re acquiring for one thing: access to a validated user base in a specific vertical.
+The economics are stark. A platform like Crete or Shield Technology Partners might pay €1.5M for a 10-person accounting firm. After integration, what survives? The client list. Everything else is overhead.
+Tier 2: PE-Backed Buy-and-Build
+In Q3 2025, 78% of PE deals with AI targets were add-ons - reflecting a broad preference for creating value through buy-and-build strategies.
+These are mid-market PE firms running vertical software rollups or services consolidation. They’ve acquired 3-7 companies, they’re trying to cross-sell across the combined customer base, and they’re hitting the ceiling on organic growth.
+The pattern is the same. They acquire companies primarily to get access to the user base. The product gets consolidated. The team gets rationalized. The customers, if they stay, are the asset that justifies the multiple.
+The pain point here is acute: integration takes longer than expected, user churn during migration is higher than modeled, and the cost per retained customer often exceeds what the original acquisition math assumed.
+Tier 3: Vertical SaaS at the Inflection Point
+The third buyer category is vertical SaaS companies at the $5-30M ARR inflection point.
+These are companies that have hit product-market fit in one segment. The board is pushing them to expand into adjacent verticals or geographies. Their options are limited: build a sales team (12+ months to productivity), acquire a competitor (€1-5M plus integration risk), or find another path.
+The companies most actively seeking distribution are those in concentrated enterprise workflows: construction, logistics, legal ops, healthcare admin, compliance. The user base is identifiable. The ICP is specific. And organic growth in new segments is painfully slow.
+Who’s Not Buying
+A few categories are notably absent from this trend.
+Early-stage startups
+ don’t have the budget or the board pressure. They’re still figuring out product-market fit.
+Horizontal SaaS companies
+: Slack, Notion, broad-use tools grow through network effects and product-led growth. They don’t need to acquire vertical-specific user bases.
+Companies where the product is the moat.
+ If competitive advantage comes from proprietary technology that users can’t get elsewhere, distribution takes care of itself. The buyer of distribution is the company whose product is good but not so differentiated that users come automatically.
+The Behavioral Pattern
+The clearest signal isn’t firmographic: 
+it’s behavioral.
+The companies most actively seeking distribution are those that have acquired at least one business in the last 18 months where the user base was the primary value driver, and where integration took longer than expected or resulted in meaningful user churn.
+They’ve felt the pain of buying an entire company just to get the customers. They’ve lived through the integration debt, the migration churn, the slow realization that the asset they paid for was leaking value from day one.
+These buyers know what distribution costs through traditional M&A. They know how long it takes. And they’re looking for a faster path.
+What This Reveals
+The shift toward acquiring for distribution rather than technology tells us something important about where value lives in the current market.
+Product is increasingly commoditized. AI is making it easier for anyone to build what you built. The defensible asset isn’t the software - it’s the relationship with a specific user segment.
+The companies consolidating markets right now understand this. They’re not paying for code. They’re paying for access.
+And the gap between what they’re paying and what that access is actually worth is where the next wave of value creation will happen

@@ -1,0 +1,61 @@
+Thrasio Raised $3B and Went Bankrupt. AI Rollups Are Running the Same Playbook.
+
+2026-05-22
+
+The structural pattern of debt-fueled, high-velocity acquisition doesn’t change just because you add AI.
+I bankrupted my first company at 22. Built it to millions in revenue, over twenty employees, real institutional backing. Then I watched it die, not because the product failed, but because I understood building and not distribution. I understood effort and not the market.
+That experience broke something in how I evaluate businesses. I stopped being impressed by growth curves and started asking a different question: what happens when the assumptions underneath the growth stop being true?
+I ask that question a lot now. I work inside a PE advisory firm where AI rollup deals come across the table every week. I talk to the operators running these platforms. I study the mechanics of how they source, acquire, and integrate. And the more I study the current AI rollup wave, the more I see a pattern I recognize, not from my own company, but from a much larger and more spectacular failure.
+Thrasio raised over $3 billion. They acquired 200+ Amazon FBA brands. At peak, they were buying one company per week. Their valuation touched $10 billion.
+In February 2024, they filed for Chapter 11 bankruptcy with $495 million in debt wiped out.
+Four months later, they emerged as a much smaller company focused on a handful of profitable brands. After $3 billion raised and 200+ acquisitions, the path to survival was simplification.
+This matters because the AI rollup wave now unfolding looks structurally identical. General Catalyst, Thrive Capital, Lightspeed, and others have deployed over $3 billion into AI-enabled rollups - acquiring accounting firms, call centers, MSPs, and property managers, then rebuilding them with AI. The thesis is that AI automation transforms margins in ways that “operational expertise” never could.
+Maybe it does. But the pattern of failure Thrasio established isn’t about the type of improvement. It’s about the dynamics of debt-fueled, high-velocity acquisition. And those dynamics haven’t changed.
+The Thrasio Thesis
+The pitch was elegant. Amazon’s marketplace is fragmented. Millions of small sellers, most doing $1–5M in revenue. Buy the best ones, apply operational expertise - better ads, smarter inventory, streamlined logistics - scale them from $1M to $3M, repeat hundreds of times.
+The fuel was abundant. Between 2018 and 2021, cheap capital flooded into the aggregator space. Thrasio wasn’t alone - Perch, SellerX, Razor Group all raised hundreds of millions. Then COVID hit and e-commerce exploded. Acquisition velocity accelerated.
+Then e-commerce normalized, interest rates rose, and Thrasio was bleeding cash to service debt on assets that were no longer growing.
+The thesis wasn’t wrong. The execution was designed for a world that stopped existing.
+Five Mistakes That Map Directly to AI Rollups
+Every structural mistake Thrasio made is a live risk in the current AI rollup wave. I’m not speculating about these parallels. I see versions of them playing out in real deal flow.
+1. Drowning in Cash Burn
+Thrasio funded acquisitions with massive debt. When growth was high and interest rates near zero, debt felt like leverage. When growth stalled and rates rose, it became an anchor.
+The AI rollup parallel isn’t identical, most are equity-funded, not debt-funded. But the cash burn dynamics rhyme. Long Lake raised $672M. Beacon raised $335M. Crete is planning $500M+ in additional acquisitions. If AI automation doesn’t deliver margin improvement fast enough, the acquisition machine starves itself.
+The question isn’t whether the capital is there. It’s whether transformed margins can sustain acquisition velocity before the capital runs out.
+2. Poor Due Diligence at Speed
+Thrasio was buying one brand per week. At that pace, proper evaluation became impossible. Some brands had inflated reviews, unsustainable ad spend, or hidden quality issues. They paid premium prices for damaged goods.
+Beacon is acquiring roughly every two weeks. When you’re under pressure to deploy $1.5 billion, the temptation to lower the diligence bar is enormous.
+Here’s what I’ve learned from watching service business acquisitions up close: buying an accounting firm with 200 clients sounds great until you discover that 40% of those clients are there because of one partner’s personal relationships and that partner retires six months after acquisition. The revenue you paid for walks out the door with him.
+Nobody prices this correctly because nobody has the tools to measure it. More on that in a future piece.
+3. Projections Based on Peak Conditions
+Thrasio projected future performance based on COVID-era numbers. They stocked inventory accordingly. When demand normalized, they were sitting on warehouses of unsellable goods.
+The AI rollup thesis assumes AI capabilities will continue improving rapidly. What if they plateau? What if LLMs hit diminishing returns for the specific workflows these companies are automating?
+The entire model prices in continued AI improvement. If a company buys 20 more call centers assuming 80% automation is heading to 95%, but the technology stalls at 80%, they’ve overpaid for distribution they can’t fully transform. And unlike Thrasio’s excess inventory, you can’t liquidate a services company you overpaid for.
+4. Growth at All Costs
+Thrasio’s model rewarded speed. Acquire more, show investors the hockey stick. Profitability was tomorrow’s problem.
+Then tomorrow arrived.
+This is the most direct parallel. The AI rollup playbook is explicitly about velocity “compounding through acquisition.” Long Lake hit $100M EBITDA in under two years through 18 acquisitions. That’s extraordinary speed. But speed and integration quality are often inversely correlated.
+I sat in on a conversation recently where an operator described their integration timeline as “aggressive but manageable.” When I asked what client retention looked like at month twelve post-acquisition, there was a long pause. They didn’t know. They were already focused on the next three deals.
+When you’re buying companies faster than you can deploy AI into them, you’re just a PE firm with a pitch deck about technology.
+5. Operational Overload
+With 200+ brands, Thrasio couldn’t give each one the attention it needed. The operational expertise they promised was spread too thin. Listing optimization slipped, inventory management became chaotic, customer service dropped.
+This is the existential question for AI rollups. General Catalyst’s portfolio now spans call centers, HOAs, property management, IT services, legal, accounting, and vertical software. Each vertical requires different AI implementations, different domain expertise, different regulatory knowledge.
+Can a single firm’s engineering team really build world-class AI for legal, accounting, call centers, property management, and IT services simultaneously? Or will the technology be spread too thin, the same way Thrasio’s operational expertise was?
+The operators I talk to are smart about this risk. Some are staying deliberately narrow - one vertical, deep integration, prove the model before expanding. Others are racing across verticals because the capital demands deployment. The narrow players are more likely to survive. The broad players make better fundraising stories.
+The Saving Grace and Its Limits
+The saving grace for AI rollups may be that AI automation theoretically creates a durable, compounding advantage that “operational expertise” never did. Thrasio’s improvement was manual and linear - more people, more effort, more attention to each brand. AI improvement is scalable and self-reinforcing.
+If it works.
+But there’s a problem with that “if” that most people in the space don’t talk about openly: AI-driven cost advantages are largely ephemeral. Any business that wants long-term success needs to assume that competition will implement similar AI interventions, ultimately competing down any initial advantages to the industry’s new cost structure.
+The cost-side story gets competed away. The durable winners will be the ones with revenue-side synergies - platforms where aggregation via AI enables companies to produce incremental revenue lift while simultaneously benefiting from cost advantages.
+Cost reduction is a temporary edge. Distribution aggregation is a durable one.
+I’m biased here. I lost my first company because I had a product without distribution. Now I study how distribution works inside rollup economics. Everything I see confirms the same pattern: the companies that survive aren’t the ones that cut costs fastest. They’re the ones that own the customer relationship.
+The Core Lesson
+Sustainable beats spectacular.
+A business doing $150K per year at 20% margins with manageable obligations outlasts one doing $500K at razor-thin margins on maxed-out commitments. Thrasio survived by doing what they should have done from the start: running fewer things well instead of many things poorly.
+The AI rollup wave has raised $3 billion+, is acquiring at similar velocity, and claims AI is the differentiator that makes this time different.
+Maybe it is.
+But the structural pattern - high-velocity acquisition, integration overload, projections based on optimistic assumptions, growth prioritized over profitability - is identical. And the underlying truth hasn’t changed: no one is too big or too well-funded to fail if they ignore fundamentals.
+The window is real. But it’s also a countdown clock. The platforms that win will be the ones that solve distribution without drowning in integration debt, that build revenue-side synergies instead of relying on cost advantages that competitors will match, and that move fast enough to stay ahead - but not so fast that they repeat the most expensive lesson in recent acquisition history.
+Thrasio already taught us what happens when speed beats substance. The question is whether anyone is paying attention.
+I’m studying AI rollup economics from inside the PE advisory machine, watching deals, talking to operators, and building toward launching my own rollup. This is the first in a series on where value accrues and where it breaks in the AI consolidation wave. Subscribe if you want the full picture as it develops.
+Subscribe now

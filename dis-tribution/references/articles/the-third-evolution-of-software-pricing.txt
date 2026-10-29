@@ -1,0 +1,53 @@
+the third evolution of software pricing - prediction economy
+saas was the tool. service-as-software is the outcome. the third shift is the prediction economy.
+2026-08-04
+
+last week i wrote about who pays for your distribution. the tax advisor doesn't. a third party does. the bank, the insurer, the acquirer who needs the vertical.
+this is the follow-up. because once you understand who pays, the next question is what you actually capture. and that answer has changed twice in the last decade, with a third shift already happening, quietly, at the companies operating closest to the frontier.
+three levels of value capture. each one collapses the level below.
+level one: sell the tool
+this is classical SaaS. you build software. you charge a subscription. the software creates value for the customer, saves them time, finds them better deals, closes their books faster, and you capture a slice of that value in monthly fees.
+the honest math on the slice: 2 to 5%. if a leadgen tool saves a sales org 30% of their time and closes 20% more deals, the customer keeps 95% of the value created. you get the subscription.
+that was fine when software was expensive to build and hard to replace. neither is true anymore. the customer re-evaluates you every renewal cycle. AI collapses the rebuild cost. sam lessin has written about this: LTVs are finite. code depreciates.
+selling the tool is a shrinking share of a shrinking pie.
+level two: sell the outcome
+this is what the AI rollup thesis is actually about, whether operators name it that way or not.
+same software. but you don’t sell it. you run it yourself and sell the result.
+the leadgen tool doesn’t get licensed to the sales org. it runs internally and you sell qualified meetings at €750 each. the tax software doesn’t get sold to CPAs. you run the CPA firm and sell filed returns. the property management system doesn’t get licensed to property managers. you become the property manager.
+value capture jumps from 2-5% to 30-60%. not because you built better software. because the customer can no longer comparison-shop you against another SaaS vendor. they’d have to replace the whole function. your margin is your secret.
+this is why AI rollups work. service pricing on software cost structure.
+Ralph Winter, real estate investor and one of the sharpest people in this space, put it plainly last month. the property managers didn't want software. they wanted the problem solved.
+but here’s the part most operators miss. L2 is not the endpoint. it’s the foundation.
+level three: the prediction economy
+this is where it gets interesting. and where i part ways with the people who built the frameworks i’ve been citing.
+Sam Lessin’s answer to what comes after SaaS is ownership. use software to run real businesses better, then buy them. metropolis didn’t sell parking software. it bought SP+ and kept the entire uplift.
+i think ownership is the right capture structure. i don’t think it’s a level.
+buying the business you operate better is L2 with better economics. you’re still monetizing the same thing. the operation. equity instead of fees changes how much of the value you keep. it doesn’t change what the value is.
+the third level is the asset that only exists at scale: data you gather through building access through your distribution network. this all ties back to distribution becoming the only moat, not because of the size it gives you, but the access to behavioral data that allows you to anticipate market shifts and through that leverages your next move of ownership.
+and the mechanism that creates it has a name. the multiplier.
+a multiplier is a firm that serves other firms. one tax advisor is one customer. but behind one tax advisor sit dozens of SMEs. behind 1,500 advisors sits the bookkeeping reality of a meaningful share of a country’s economy. you don’t build reach to the network. you build reach through it. that’s the lever that turns a 1,500-node network into an economy-scale instrument. and it’s why the vertical selection rule is not fragmentation alone. it’s fragmentation times end-customer leverage.
+run the platform layer across a vertical’s multipliers and you see something that exists nowhere else. the evolution of an entire SMB economy, in near-real time. which sectors are heating up. where margins compress. where cash cycles stretch, months before any published statistic. pattern-level movement of a whole market.
+the tool depreciates. AI rebuilds it in weeks. the operation scales. a funded competitor replicates it in years. the panel is time-locked. no competitor can replicate it without replicating your entire network history. and history is the one thing money can’t compress. that’s the exact reason i keep saying distribution is the only moat.
+the large players have already figured this out. as a product. in may 2026, constellation software acquired keypoint intelligence: the benchmark authority of the digital-imaging industry, the lab everyone in that vertical cites. in march 2026, beacon software paid eight figures for RealEstateAPI, a bootstrapped property-data business with 300+ paying customers. the buyers of vertical software are already buying the information authority of verticals. the sellable form of a signal layer has a name and a precedent. the benchmark business with paying subscribers.
+that's the long-term moat everyone is searching for. call it the prediction economy: the phase where the winners aren't the ones who automate the work, but the ones who see the market through the work.
+two paths in level three
+once the panel is running, the strategic question is what you do with it.
+path one is mid-term cash. sell the signal. anonymized, aggregated, structured for buyers who can’t build it themselves. hedge funds paying for pre-print macro signal. insurers pricing SME credit risk. banks calibrating loan books. this is the intuit small business index model with paying subscribers instead of free thought leadership. clean revenue. no operational complexity. no conflict-of-interest exposure because you’re never a counterparty to your customer base.
+the tax platform sells the SMB cash-cycle feed to three hedge funds and two macro desks. eight-figure annual revenue on a network the operating business paid to build. the panel becomes a subscription business layered on top of the service business. the acquirer, when it comes, buys a rollup with a proprietary data product bolted on. that’s real value.
+path two is long-term ownership. keep the signal internal. use it to make your own investment and expansion decisions. which SMEs to acquire before their bank does. which sub-verticals to build into next. which geographies are heating up before the competition sees the shift. the panel becomes an origination engine for your own capital deployment.
+the tax platform sees which regional accounting practices are quietly consolidating clients and buys them at multiples the market hasn’t priced yet. it sees which SMB segments are structurally growing and expands its multiplier network toward them first. the panel doesn’t get sold. the panel gets deployed.
+the difference is what game you’re playing.
+path one is a good business. clean, defensible, predictable revenue. the ceiling is set by what data buyers will pay per year, and the exit is an information-authority acquisition like keypoint or realestateAPI. good outcome. bounded outcome.
+path two is a compounding position. every insight from the panel makes the next capital allocation sharper. every acquisition tightens the network. the ceiling is set by the size of the vertical you’re building through, not by what a hedge fund will pay for a data feed. bigger upside. bigger execution risk. requires capital you may not have and patience the board may not want.
+most operators can only run one of these. the discipline is picking which and building the whole structure around it. path one shapes contract terms, licensing architecture, GDPR posture, customer disclosure. path two shapes capital structure, board composition, deal pipeline, retention economics.
+the mistake is trying to keep both open. you can sell the signal or use the signal. running both is how you end up with hedge fund contracts that block your own acquisition activity because your customers realized you’re both selling their aggregate signal and using it to buy their competitors.
+pick the game.
+what to build
+three revenue layers stacked, one asset that appreciates.
+L1 spreads the network. the free 10x feature that gets you through the door to the multipliers.
+L2 runs the operation. the service business that makes the network real and generates the panel underneath it.
+L3 is where the decision lives. sell the signal for clean recurring revenue. or use the signal to compound your own ownership. one is a good business with a bounded ceiling. the other is a compounding position with a bigger ceiling and a harder execution.
+pick the level three you’re actually playing. build the whole structure around it.
+that's the whole play.
+Subscribe now
+based on conversations with AI rollup operators, property platform founders, and the ongoing question of what actually gets captured when software becomes infrastructure.

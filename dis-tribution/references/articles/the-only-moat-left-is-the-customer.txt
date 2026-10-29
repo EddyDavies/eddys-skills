@@ -1,0 +1,60 @@
+The Only Moat Left Is the Customer
+Product is getting commoditized. Technology is getting replicated. The only asset that survives is the relationship with a specific user base - and the smartest money in the market already knows it.
+2026-05-22
+
+I lost my last company because I understood building but not distribution.
+Three years, €1.3 million in revenue, over twenty employees - and the thing that killed us wasn’t the product. The product was fine. What we didn’t have was a defensible relationship with a customer segment that needed us specifically. We built something good, marketed it to everyone, and watched it die because “good” and “for everyone” is the same as invisible.
+I think about that every week now. Because I work inside a PE advisory firm where I see deal flow - companies being acquired, portfolios being assembled, billions being deployed - and the pattern underneath all of it has shifted in a way that most people haven’t fully registered yet.
+Companies used to acquire for technology. For talent. For IP. Now, increasingly, they’re acquiring for one thing: the user base.
+Clay bought blogs. HubSpot bought newsletters. PE firms are rolling up accounting practices, MSPs, and property managers not for their systems, not for their teams, but for their client relationships. The pattern is quiet, but it’s accelerating. And if you understand why, you understand where value actually lives in the current market.
+The Shift
+I’ve spent the last several months talking to PE consultants, growth-stage operators, and AI rollup founders. I keep asking the same question: what keeps you up at night?
+The answers circle back to one thing. Growth is flattening. The product is getting commoditized. AI is making it easier for anyone to build what you built. The technology advantage that justified your valuation eighteen months ago is now a feature in three competitors’ products.
+So what’s left?
+The customer relationship. The data you’ve collected. The segment you own. The trust you’ve built with a specific group of people who chose you, not because you had the best technology, but because you understood their problem and showed up consistently.
+That’s what’s driving the acquisition behavior I’m seeing. The acquirers aren’t buying technology. They’re buying access.
+Where the money flows
+The question worth asking isn’t just “are companies acquiring for distribution?” - it’s who exactly is doing it, and what does that reveal about where value is migrating?
+I see three distinct buyer categories, each with different economics and different pain points.
+AI rollup platforms
+ are the most aggressive. General Catalyst has committed $1.5 billion to incubating AI-native companies in specific verticals, then using those companies as acquisition vehicles to buy established firms and their customers in the same sectors. The key phrase is “and their customers.” Thrive Capital, Lightspeed, and 8VC are running similar playbooks.
+These platforms aren’t acquiring for technology, the acquired company’s tech stack usually gets retired within months. They’re not acquiring for talent - most of the team churns within 18 months. They’re acquiring for one thing: access to a validated user base in a specific vertical.
+The economics are stark. A platform like Crete or Shield Technology Partners might pay €1.5 million for a 10-person accounting firm. After integration, what survives? The client list. Everything else is overhead to be optimized or eliminated.
+PE-backed buy-and-build operators
+ are the second category. In Q3 2025, 78% of PE deals with AI targets were add-ons - reflecting a broad preference for creating value through acquisition and consolidation rather than organic growth. These are mid-market PE firms running vertical software rollups or services consolidation. They’ve acquired three to seven companies, they’re trying to cross-sell across the combined customer base, and they’re hitting the ceiling on organic growth.
+The pattern is the same. They acquire companies primarily to get access to the user base. The product gets consolidated. The team gets rationalized. The customers, if they stay, are the asset that justifies the multiple.
+The pain point here is acute. Integration takes longer than expected. User churn during migration is higher than modeled. And the cost per retained customer often exceeds what the original acquisition math assumed. I see this in deal reviews regularly - the post-close numbers rarely match the pre-close projections, and the gap almost always traces back to customer retention.
+Vertical SaaS companies at the inflection point
+ are the third. These are companies at $5–30M ARR that have hit product-market fit in one segment. The board is pushing them to expand into adjacent verticals or geographies. Their options are limited: build a sales team (12+ months to productivity), acquire a competitor (millions plus integration risk), or find another path.
+The companies most actively seeking distribution are those in concentrated enterprise workflows: construction, logistics, legal ops, healthcare admin, compliance. The user base is identifiable. The ICP is specific. And organic growth in new segments is painfully slow.
+What’s Notably Absent
+A few categories are missing from this trend, and the absence is revealing.
+Early-stage startups don’t have the budget or the board pressure. They’re still figuring out product-market fit - they need to find distribution, not buy it.
+Horizontal SaaS companies, Slack, Notion, broad-use tools, grow through network effects and product-led growth. They don’t need to acquire vertical-specific user bases because their growth mechanics are different.
+And companies where the product genuinely is the moat, where competitive advantage comes from proprietary technology that users can’t get elsewhere, don’t need to buy distribution because it comes to them.
+The buyer of distribution is the company whose product is good but not so differentiated that users come automatically. And in a world where AI is commoditizing product capabilities at an accelerating rate, that description fits more companies every quarter.
+Where My Thesis Broke
+I want to be honest about something. My original thesis about distribution was wrong or at least incomplete.
+When I started researching this after Octrace, my idea was simple: what if you could build simple tools with AI, give them away for free, accumulate a specific and validated user base, then sell that segment to growth-stage companies who need customers faster than they can acquire them organically? No tech to integrate. No team to absorb. Just access.
+Distribution as a product. Customer segments as an asset class.
+I tested this with three buy-and-build entrepreneurs - people who are actively acquiring companies and understand the economics of purchased distribution. All three told me the same thing: they wouldn’t buy manufactured target groups.
+The reason was more nuanced than I expected. It wasn’t that they didn’t value the user base. It was that they didn’t trust the quality signal. A user who signed up for a free AI tool is not the same as a client who’s been paying a $3,000 monthly retainer for accounting services for six years. The latter has demonstrated willingness to pay, has an established relationship pattern, and has switching costs. The former has demonstrated willingness to click a signup button.
+The acquisition buyers I talked to wanted two things I hadn’t originally accounted for: proof of genuine economic engagement (not just signups, not just usage, actual payment history and retention patterns) and operational GTM expertise post-close (someone who understands how to retain and expand the acquired customer base, not just someone who assembled it).
+My thesis evolved. The core conviction didn’t change - 
+distribution is the moat
+, and the company that owns the customer relationship wins. But the mechanism shifted. It’s not enough to aggregate users. You need to aggregate economically validated relationships, and you need to understand how those relationships survive ownership transfer.
+That shift is what led me deeper into studying post-merger integration, client retention dynamics, and the specific ways distribution breaks or compounds during acquisition. And it’s what made me realize that the biggest gap in the entire AI rollup ecosystem isn’t the AI or the capital - it’s the tooling and expertise for keeping the distribution you paid for.
+The Behavioral Signal
+The clearest indicator of who will buy distribution next isn’t firmographic: 
+it’s behavioral.
+The companies most likely to seek acquired distribution are those that have already bought at least one business in the last 18 months where the user base was the primary value driver, and where the integration took longer than expected or resulted in meaningful client churn.
+They’ve felt the pain of buying an entire company just to get the customers. They’ve lived through the integration debt, the migration churn, the slow realization that the asset they paid for was leaking value from day one.
+These buyers know what distribution costs through traditional M&A. They know how long it takes. And they’re actively looking for a better path - even if they don’t have language for what that path looks like yet.
+What This Means
+The shift toward acquiring for distribution rather than technology tells us something fundamental about where value lives right now.
+Product is increasingly commoditized. AI is making it possible for a three-person team to build what used to require thirty. The defensible asset isn’t the software - it’s the relationship with a specific user segment. The trust. The payment history. The habit of engagement that survives competitive pressure.
+The companies consolidating markets right now understand this intuitively, even if they don’t articulate it this way. They’re not paying for code. They’re paying for access.
+And the gap between what they’re paying for that access and what the access is actually worth - when you account for the integration cost, the churn risk, the relationship dependency they can’t see in the financials - is where the next wave of value creation and destruction will happen.
+I lost a company because I didn’t understand this. I spent three years building a product and never building distribution. Now I watch companies spend billions acquiring the thing I didn’t have, and many of them are making a different version of my mistake: they’re buying distribution without understanding what makes it survive the transfer.
+Distribution is the only moat left. But owning distribution and keeping distribution are two very different problems. The companies that figure out the second one will define the next decade of consolidation. The ones that don’t will join a long list of well-funded failures.
+The market always tells you what matters. The only question is whether you’re willing to hear it - and whether you hear it in time.

@@ -1,0 +1,64 @@
+Roll Up or Build: Why Emergence Capital Is Wrong About AI Rollups
+Emergence Capital published a piece arguing rollups are mostly wrong for AI-native services companies. General Catalyst and I disagree.
+2026-07-06
+
+The core thesis treats it as a binary. It’s not. It’s a spectrum.
+The variable is automation grade. How much of the work in a given vertical can AI actually do. That determines whether you should grow organically, roll up, or stay away entirely. The article never applies this lens. That’s the gap.
+Here’s where I agree, where I don’t, and why.
+Simpler than it sounds
+“Layer AI on top” is not the case. You start with a Platform Company that you know is tech receptive, and integrate custom workflow automation into their processes. The biggest waste of tokens is people building software but no one using it. AI Rollups, if led well, generally avoid that. The best case I’ve seen are General Catalyst portfolio companies. They track tech adoption and how well it works before enabling the next tranche to buy and scale.
+Two different strategies get lumped together in this kind of discussion. One aggregates assets primarily for multiple arbitrage - buying at low multiples, bundling, selling the aggregate higher, with limited operational integration. The other integrates acquisitions around a platform company with shared technology, processes, and culture, where the value comes from operational improvement rather than the multiple spread. The article applies critiques of the first to argue against the second.
+One point the article gets right: organic GTM after inorganic growth is hard. 
+“Customer acquisition” flattens the thesis
+Distribution is the moat. Full stop. But that is not the only reason an AI rollup acquires.
+You buy the customer segment. The market trust. The standing processes. The fulfillment. The decades of operational data that informs what you build next. Not just the customers.
+The spectrum no one talks about
+Below 30% automation: you can’t underwrite the value creation. The AI transformation isn’t deep enough. The margin improvement is too thin to compound.
+30 to 70% automation: this is where rollups make sense. You’re buying companies with real operational substance that AI can meaningfully transform but not fully replace. CPAs. MSPs. Property managers. Call centers. You need the people, the processes, the structure. You also need AI to make them dramatically more efficient. The CPA isn’t dead weight just because she’s not AI-native. The magic is enabling her to do 10x the work she could do alone.
+A niche case I just listened to: tree trimmers across America. Unbelievably fragmented market with 30% achievable automation and revenue expansion through AI. Apparently many deals get lost because people in that business regularly miss checking their emails for offers. That’s the kind of gap rollup-plus-AI was built for. Above 70% automation: rollups get nervous. Customers can switch easily. You’re buying expensive headcount you’re about to automate away. This is where Emergence’s thesis holds.
+But it holds here. Not everywhere.
+Harper Insure, the AI-native insurance broker in the blog’s own example, has over 80% automation. They don’t need to roll up. More inbound than they can service. Correct. That’s what above-70% looks like. But generalizing from that to “rollups are mostly wrong” ignores the entire band where the economics work differently.
+The multiple question
+I’ve thought about this a lot.
+The multiple expansion only works if you actually do the AI transformation. Constellation, TransDigm, Danaher trade at 20-25x EBITDA because they demonstrably improve the companies they buy.
+If we just aggregate assets, we deserve a PE multiple. If we genuinely double free cash flow through AI in eighteen months across a portfolio, we deserve something closer to a software multiple.
+The risk looks like venture. The return profile looks like venture. The vehicle just happens to be a balance sheet instead of pure equity.
+And even in the downside case, where multiples compress and the software-adjacent re-rating never comes, the AI transformation still increased the cash flow of the underlying business. You make a return on the cash flow alone. That’s the floor. Venture upside, PE downside protection.
+Where the framework meets a real case
+I talked to a founder this week. AI native management consulting. Automates change management and business transformation. Currently at 50% automation, heading to 90%. Off-the-shelf SaaS.
+A holding company offered him $5M to acquire a consulting firm.
+Wrong play. I agree. But not because rollups are bad. Because this specific founder has the wrong profile for it.
+Automation level. 
+He’s at 50% now, heading to 90%. If you can automate 80%+ of the process, acquiring consulting firms means buying expensive headcount you’re about to automate away. Organic growth is cheaper and faster.
+No confirmed PMF. 
+Still fundraising his seed. Inorganic growth before PMF is burning capital without knowing if the core technology holds. If the product doesn’t stick, you’ve just bought expensive distribution for nothing.
+SaaS vs. custom workflows. 
+AI rollups require proprietary, custom automation for each acquired company. “Stephanie” from accounting has done it one way her whole life. You don’t hand her an off-the-shelf tool. You build something that reads her current systems and automates based on how she’s actually been doing it. Beacon built several proprietary technologies in roughly a year. That’s how deep it goes. An off-the-shelf product and a rollup strategy pull in opposite directions.
+Where the article breaks
+The customer isn’t paying more. 
+The article spins it into ‘then what’s the customer paying more for.’ That’s a category error. The customer is paying the same or less. We’re delivering it at a fraction of the cost. The delta is the margin. That’s the whole thesis.
+The AI doesn’t have to be visible to the customer for the unit economics to flip. It has to be invisible enough that the customer doesn’t churn and effective enough that we double free cash flow in eighteen months. Those are the two metrics.
+The blogs ‘that customers won’t switch unless the AI is visibly better’ framing assumes we’re trying to win on visible AI features. We’re not. We’re trying to win on outcome and price. The customer experiences “this works better and costs less.” Not “wow, this is AI-native.”
+Apples to oranges. 
+Of course a team of 10 is cheaper than a team of 150. But you can’t automate 100% of what an MSP does. You need technicians to fix the router and people checking how well tickets have been sorted. The degree of automation possible in the vertical determines the strategy. Not some universal preference for organic growth.
+The pre-PMF pivot. 
+The article argues that if you need a rollup for distribution, your product isn’t good enough. That’s an argument against pre-PMF companies using rollups as a distribution shortcut. That was never the idea behind AI Rollups. You don’t create a new SaaS and roll up an industry. You build on top of their processes. The article is arguing against a version of AI rollups that serious operators aren’t running.
+What actually holds customers
+The article treats relationship stickiness as the primary retention mechanism and then argues it’s weaker than it looks.
+But relationship stickiness isn’t even the primary mechanism.
+What holds customers after acquisition, in order:
+→ Processes get better, issues resolved faster → Seniority of combined group and knowledge → Greater options and support for customer → Existing relationship
+Outcome improvement is the moat. Relationships are fourth.
+That’s why earn outs exist. Not the solution to all problems. But they bridge the transition while outcome improvement takes hold.
+Per outcome pricing is the future. But you don’t start there. You start with the existing contracts and improve delivery within them.
+And “organic then inorganic” is not a universal sequence. It depends on the vertical, the automation grade, and whether a strong platform company exists to build on.
+The data exists
+The article frames ‘$50M+ ARR, retention north of 90% on the acquired book, margins expanding rather than capped’ like nobody has it.
+General Catalyst has it.They published the playbook. Crescendo acquired PartnerHero and is rolling out AI customer service to its 200 customers, taking gross margins to 60-65%. Long Lake has acquired 18 businesses with 25-30% productivity gains in HOA Management and a 10x increase in new customer pipeline. Dwelly acquired 6 property management agencies and doubled EBITDA margins where the tech is fully deployed. Titan acquired RFA and reduced user onboarding from weeks to minutes.
+That’s not a thesis. Those are transactions that closed.
+The data exists. The question isn’t whether AI rollups can work. It’s whether you’re running the right playbook for the right vertical at the right automation grade.
+The founder I talked to this week made the right call. He read his position on the spectrum correctly. High automation trajectory. Off-the-shelf product. No PMF. He turned down $5M because the framework told him to.
+In that case, Emergence Capital’s argument would land right - for the wrong reasons. The blog argues not to roll up because rollups are mostly wrong. The actual answer is don’t roll up because your automation grade, product architecture, and PMF status put you above the 70% line.
+One is ideology. The other is diagnosis.
+Based on conversations with AI rollup operators, PE advisors, and founders across the automation spectrum. Special thanks to Kate Bender, Partner at General Catalyst, for the exchange.
+Thanks for reading Viktoria's Substack! Subscribe for free to receive new posts and support my work.

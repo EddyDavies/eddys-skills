@@ -1,0 +1,59 @@
+The $3B Blind Spot: Why AI Rollups Have No PMI Software
+
+2026-06-29
+
+Every post-merger integration platform treats integration as a project management problem: tasks, milestones, checklists, Gantt charts.
+That’s like treating a heart transplant as a logistics exercise. Yes, the logistics matter. But the question that determines life or death is: 
+will the body reject the organ?
+For AI-enabled rollups acquiring service businesses, the organ rejection question is this: 
+will the acquired company’s value survive the transition?
+Value in a service business doesn’t live in systems. It lives in client relationships, employee knowledge, operational habits, and local reputation. When you acquire an accounting firm, you’re not buying software and processes. You’re buying the fact that 200 clients trust the people in that building to handle their taxes. If those people leave, or if those clients sense disruption, the asset you paid for walks out the door.
+The entire AI rollup thesis - $3B+ deployed by General Catalyst, Thrive, Lightspeed, and others - depends on acquiring service businesses and deploying AI to transform margins. But AI can only transform margins on revenue you retain. And the platforms doing this at scale have no adequate tooling to predict, monitor, or prevent the relationship decay that destroys acquired value.
+Why Existing Tools Fail
+The PMI software market is dominated by deal management platforms - Midaxo, DealRoom, Ansarada, Datasite. They’re good at what they do: document management, task tracking, due diligence workflows. They treat integration as a project with a start date, an end date, and a checklist in between.
+But the failure mode in service business acquisitions isn’t missed tasks. It’s invisible decay.
+The partner who stays for 12 months but mentally checks out at month 3. The client who doesn’t complain but starts responding to competitors’ calls. The office manager who was the connective tissue for 15 client relationships and takes a job elsewhere because nobody thought to include her in the retention plan.
+None of this shows up in a Gantt chart. By the time it shows up in revenue, it’s too late.
+The consulting firms - Bain, McKinsey, Accenture - fill this gap with high-touch advisory. They charge $500K to $2M per engagement to embed people who pattern-match on soft signals. That works, but it doesn’t scale. A platform acquiring 10+ firms per year can’t run every integration through a consulting engagement. And the consultants don’t retain structured data across engagements - each integration starts from zero.
+The Relationship Dependency Problem
+Here’s what actually determines whether acquired revenue survives:
+Firm-loyal clients
+ interact with multiple people at the company, have been there for years, pay automatically, and never mention a specific person in communications. They’ll survive ownership changes. They’re not loyal to a human - they’re loyal to a habit.
+Person-loyal clients
+ run their entire relationship through one individual. If that person leaves, the revenue walks. In a typical small accounting firm, 30-50% of revenue may sit in the “gravity well” of a single partner.
+Habit-loyal clients
+ are the dangerous middle. They’re not actively loyal - they just haven’t thought about leaving. Any disruption that forces them to make an active choice puts them at risk.
+Every acquisition contains a mix of all three. The acquirer’s job is to know the distribution 
+before
+ pricing the deal, and to manage the transition in a way that doesn’t convert firm-loyal clients into flight risks.
+But this distribution is invisible. It’s not in the CRM (most small service firms don’t have one). It’s not in the financials. It lives in email patterns, calendar metadata, phone logs, and the institutional memory of people who may or may not stay.
+Today, acquirers either ignore this: pricing in a flat 20-30% “integration risk” haircut or they rely on gut feel from advisors who’ve done enough deals to pattern-match. Neither approach compounds. Neither gets better with scale. Neither tells you on day 47 of integration that three of your highest-value clients are showing early warning signs.
+Why Nobody’s Built the Solution
+Six reasons, and they compound each other.
+The data doesn’t exist in structured form.
+ The relationship between a tax advisor and their 80 clients lives in email threads, phone call frequency, who attends the annual review meeting, who the client asks for by name when they call. None of that is in a system. Before you can build AI to analyze relationship dependency, you need to digitize relationships that were never digital.
+Buyer and seller have opposing incentives.
+ The seller wants to present their client base as firm-loyal, sticky, and transferable: that maximizes sale price. Any tool that accurately maps relationship dependency reduces the seller’s leverage. So sellers won’t install it pre-acquisition, and buyers can’t access the data until they’ve already committed capital.
+The market is too small for traditional software economics.
+ How many entities are doing serial acquisitions of service businesses? Maybe 50-100 globally. That’s not a TAM that gets a seed round funded. The consulting firms serve this market because they can charge seven figures per engagement, software economics need volume that doesn’t exist.
+The problem is vertical-specific.
+ Client retention risk in an accounting firm looks nothing like a property management company, which looks nothing like a call center. A horizontal tool would need to be rebuilt for each vertical. That’s five products, not one.
+The expertise gap.
+ The person who can look at an accounting firm and tell you which clients will leave is a 55-year-old M&A advisor with 30 deals of pattern recognition. They’re not founding a SaaS company. The AI engineer who could build the tool has never acquired a business and doesn’t know what signals matter.
+The current buyers might not want it.
+ If you’ve priced 20% client churn into your model and already deployed $500M, a tool that surfaces the true number might show that deals you’ve already done are worse than you thought. Buying a tool that quantifies your blind spot means acknowledging you have one.
+Bad data, adversarial incentives, tiny market, vertical fragmentation, expertise gap, and buyers who may not want the transparency. That’s why nobody’s built it.
+What the Solution Would Need to Do
+The gap is clear. The question is whether it’s fillable.
+A real solution would need to:
+Map relationship dependency before the deal closes.
+ Ingest metadata from email, calendar, billing, and phone systems to produce a client-by-client risk profile. Not surveys: behavioral signals. Show the acquirer exactly which revenue is firm-loyal versus person-loyal, and model what happens under different transition scenarios.
+Monitor for decay in real time during integration.
+ Track engagement signals across every acquired client - response times, meeting frequency, payment patterns, sentiment - and flag early warning signs before they become churn. Predict problems, not just report them.
+Learn across acquisitions.
+ Every integration generates data. The system should build a portfolio-wide model of what works: which transition sequences minimize churn, which retention structures keep key employees, which rebranding timelines are safe. Each acquisition should benefit from everything learned in every previous one.
+Operate on metadata, not content.
+ Privacy constraints, especially in Europe, mean the system can’t read emails or listen to calls. It has to infer relationship strength from patterns - who emails whom, how often, response latency, meeting attendance - without accessing content.
+The platform that solves this becomes infrastructure for the entire AI rollup wave. Every fund deploying capital into service business acquisitions would need it.
+Nobody’s built it yet. The structural reasons are real. But the demand is coming and the first visible integration failures will make it acute.
+This is part of an ongoing research series on distribution economics and AI-enabled rollups. A follow-up piece will explore what an AI-native PMI platform would look like in detail

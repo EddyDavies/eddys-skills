@@ -1,0 +1,58 @@
+the next billion dollar company won't be monetizing their customer
+the non-obvious player pays. everyone else gets the network for free.
+2026-07-13
+
+there’s a cleaning company in new york i keep thinking about.
+they clean your house for free. no subscription. no upsell. no fine print. you book them, they show up, they clean, they leave. no invoice.
+the twist is that every cleaner wears a camera. every cleaning session is filmed. every corner, every surface, every motion.
+their bet: in five years, humanoid robots will do household cleaning. the company that owns the most video data of humans actually cleaning real homes will train the best robots. and the robotics companies will pay a fortune for that data. more than any human customer would ever pay for the cleaning service itself.
+so they don’t monetize the cleaning. they monetize the data.
+the cleaner they send to your house is not the product. the video of that cleaner is the product. and you are not the customer. the robotics company in three years is the customer.
+they play free with everyone whose money isn’t the real money.
+that’s the play most AI rollup operators are missing.
+your distribution network is not your customer
+i had a call this week with a founder building an AI-native tax advisory platform in austria. serious operator. real product. income and expenditure calculation already at 90% automation. tax returns generated and filed automatically. the software works.
+but they’re stuck in the same trap most AI-native companies are in. they’re trying to monetize the tax advisors they onboard. build a great product. charge a monthly fee. grow organically.
+that math doesn’t work for the exit game they’re actually playing.
+here’s the reality: austria has 3,000 tax advisors. even if this founder onboards one advisor a week - already aggressive - they’ll hit 100 tax advisors in two years. no acquirer buys a distribution network of 100 advisors in a market of 3,000. that’s 3% penetration. not a network. a foothold.
+the acquirer they need - ETL, or one of the german or american CPA rollups - will only pay for meaningful distribution. 1,000 tax advisors. 1,500. the majority of the market. anything less is a nice acqui-hire, not a strategic acquisition in a small market.
+so the question isn’t “how do we build a better tax advisory product.” the question is “how do we onboard 100 tax advisors a month for the next 12 months.”
+and you cannot do that if the tax advisor is the one paying you.
+because the moment the tax advisor has to pay, they slow down. they compare. they negotiate. they wait for budget approval. they ask their partners. they miss your emails. the whole flywheel jams.
+the tax advisor is not your customer. the tax advisor is your distribution.
+find the third party
+the cleaning company found robotics. what’s the tax advisor equivalent?
+think about what a network of 1,500 austrian tax advisors actually generates: real-time financial data on every SME in the country. bottom-up macro signals. industry-level benchmarks. cash flow patterns across the entire small business economy. anonymized, in aggregate, this is a data set that literally does not exist anywhere else.
+who wants that data?
+hedge funds. macro analysts. banks running SME credit strategies. insurers pricing small business risk. anyone trying to see which sectors are heating up months before it shows in public data. funds already pay millions a year for alternative data feeds:  credit card panels, app usage, satellite imagery. a real-time signal on an entire SME economy is the same category. it doesn’t exist yet.
+that kind of feed is a rounding error in fund economics.
+but here’s the part most founders get wrong. and it’s the part that ends careers.
+the data doesn’t belong to the tax advisor. it belongs to the entrepreneur. austrian tax advisors are bound by professional secrecy. they can’t pipe client financials anywhere. 
+so the entrepreneur has to be in the room. not a hidden data source. a user. they get the free bookkeeping experience, and in exchange they opt in to their data feeding anonymized, aggregated statistics. 
+a few million a year from data buyers covers your entire operation. software free for tax advisors. software free for entrepreneurs. every friction point that slowed onboarding gone.
+the tax advisor gets the 10x feature for free. the entrepreneur gets a better bookkeeping experience for free and opts in on the way through. the data buyers pay for a macro signal only they know how to extract value from.
+three parties. one pays. two ride for free. distribution builds at maximum velocity.
+big fish in a small pond 
+here’s the part nobody wants to say out loud: if you’re in a small market, you’re playing an exit game. and that’s fine.
+austria has 3000 tax advisors. even a dominant AI-native tax advisory platform there won’t IPO in austria. it won’t be a decacorn. the ceiling is real. everyone in the ecosystem knows it.
+what most founders in this position do is pretend they’re playing the global game anyway. they raise VC money. they pitch expansion into germany and switzerland. they position for a story their market can’t support. and then they burn 18 months trying to prove the unprovable before quietly pivoting to a strategic sale, because the market is too saturated in other regions. 
+the smarter move is to know from day one what game you’re in. play it clean. optimize for the acquirer you know is coming.
+for the austrian tax advisor play, the acquirer is a german or american CPA rollup that wants to enter the austrian market and doesn’t want to build the distribution from scratch. they’ll pay for the network. they won’t pay for the software - they have their own. they won’t pay for the customer relationships - they’ll integrate them into their existing platform.
+so build for that. don’t over-invest in software the acquirer will replace anyway. don’t over-invest in features the acquirer won’t use. 
+optimize for the one thing the acquirer will pay for: distribution and access to your verticle. 
+the franchise model
+here’s where it gets interesting.
+if the monetization is the data buyer and not the tax advisor, then this exact play works in every small market that has SMEs, tax advisors, and no strong incumbent AI-native platform.
+lithuania. bulgaria. slovenia. estonia. every small european market that’s too small to attract global VC attention but big enough to have a real SME economy.
+in each of those markets, the same three-party model works. tax advisors onboard for free. entrepreneurs use the software for free and opt in at the door. the data buyers, possibly the same funds and banks across countries, pay for the aggregate signal.
+you build a franchise of distribution networks. austria. lithuania. bulgaria. each one is a 40 million euro shareholder value creation event on its own. bundled together, you’re a 400 to 500 million euro platform play. and the acquirer is no longer a german CPA rollup buying one country - it’s a global platform paying for entry into ten markets at once.
+that’s the shift. from playing a small game well to running the same well-played small game ten times in parallel.
+know your game
+most AI rollup operators are optimizing for the wrong thing. they’re building product for people they think are their customers, when their real customers are somewhere else entirely.
+if you’re in a market where you’ll be acquired for your distribution, the tax advisor is not your customer. if you’re in a market where robotics is the future, the household is not your customer. if you’re in a market where the underlying data is the asset, the person generating the data is not your customer.
+find the third party who benefits from what you’re building in a way no one else does. price them. let everyone else ride for free.
+your distribution accelerates. your economics get cleaner. your acquirer sees a network that looks impossible to replicate.
+play the game you’re actually in. price the party who’s actually paying. and build the distribution nobody else can catch.
+that’s the whole play.
+"Everything we see hides another thing. We always want to see what is hidden by what we see."
+based on conversations with AI rollup operators, an AI-native tax advisory founder in vienna, and a cleaning company in new york i keep thinking about.

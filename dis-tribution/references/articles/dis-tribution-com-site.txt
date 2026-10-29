@@ -1,0 +1,49 @@
+Distribution.com (dis-tribution.com) site copy
+Her venture site: "an independent research and operating practice founded by Viktoria Izdebska"
+Extracted 2026-08-03 from the site's JS bundle (React SPA; library page mirrors the Substack feed)
+
+== Homepage / framing ==
+
+Over the past three years, a new model for value creation has emerged. Venture capital firms are acquiring mature services businesses and rebuilding them with AI — transforming margins, automating workflows, and compounding through further acquisition. More than $3 billion has been deployed to this strategy. The AI is working. The capital is abundant. But one constraint persists across every platform executing this playbook: distribution.
+
+Acquiring users still means acquiring entire companies — with their codebases, their teams, their integration debt, and their 12–18 month timelines to value. We believe this constraint is structural, not temporary. And we believe distribution can be manufactured directly — co-designed, pre-built, and transferred without the overhead that makes traditional M&A slow and expensive. This is our research into that thesis.
+
+The capital has moved faster than the infrastructure. General Catalyst, Thrive Capital, Lightspeed, 8VC, and investors like Elad Gil have collectively deployed over $3 billion into AI-enabled rollups — acquiring accounting firms, call centres, MSPs, and HOA managers, then rebuilding them with AI to transform margins from 10% to 40%. Build costs have collapsed enough to make the AI side work. But distribution — getting the right users onto the right platform — remains manually acquired, one company at a time, at costs that don't compress with scale.
+
+This constraint is compounding under a time pressure. Agentic AI workflows are beginning to route users automatically — within 18–24 months, the current mechanics of distribution may look fundamentally different.
+
+We research these dynamics because we believe distribution is underpriced as an asset class and misunderstood as a strategic function. Companies treat it as a marketing problem. It's an infrastructure problem.
+
+== Research page ==
+
+Capital deployed to AI-enabled rollup strategies now exceeds $3 billion across General Catalyst, Thrive Capital, Lightspeed, 8VC, and Khosla Ventures. General Catalyst's Creation Strategy has incubated 10+ companies and committed $1.5B. Thrive Holdings has embedded OpenAI engineers directly inside portfolio companies. Long Lake reached $100M EBITDA in under two years. Crescendo reports margins four times higher than traditional contact centres. Crete acquired 10+ accounting firms in a single year.
+
+The results are real. But every one of these platforms acquires distribution the same way: by buying entire companies. We study why that's the bottleneck, what it actually costs, and whether there's a faster path.
+
+Monetized companies can't build free tools — boards, revenue targets, and pricing committees kill it. Users can't organise themselves into a sellable asset. Enterprise vendors won't cannibalise their own revenue. This creates a structural gap where pre-qualified, ICP-matched audiences could be manufactured and transferred — but almost nobody is doing it.
+
+We're mapping the economics of that gap: what it costs to build a distribution asset from scratch, what conversion rates look like when users are behaviourally qualified rather than firmographically targeted, and where the model breaks.
+
+Two-thirds of rollups historically are value-neutral or worse. Integration is consistently reported as harder than acquisition. We track the real cost of distribution through M&A — not the stated acquisition price, but the adjusted cost per surviving user after churn, migration timelines, team attrition, and codebase retirement.
+
+We also study why cost-side synergies from AI deployment are ephemeral while revenue-side synergies from distribution aggregation tend to be more durable.
+
+Generic freemium products convert at 2–5%. ICP-matched product-led growth tools convert at 8–18%. Users who complete a specific workflow three times per week for thirty consecutive days convert at roughly three times the rate of casual signups.
+
+We're investigating whether manufactured audiences — users acquired through purpose-built free tools, qualified by behaviour rather than firmographics — convert at rates that make distribution-as-an-asset economically viable. This is the assumption that determines whether the entire thesis holds.
+
+The model returns 2.5× even at 5% conversion. The question isn't whether the economics work — it's whether we can build the user base at target cost. That's the operational risk. What we haven't proven: that these specific users, acquired this way, convert at this rate. That's what the first asset tests.
+
+AI agents are beginning to orchestrate workflows, auto-select tools, and route users toward systems of record. This changes distribution mechanics fundamentally. We're tracking how quickly agentic workflows are abstracting away the [current] distribution pattern, and what that means for anyone building or acquiring distribution assets today.
+
+The distribution assets built in this window — before agents intermediate tool discovery — may be structurally different from anything that comes after. This is both opportunity and constraint.
+
+== Thesis page ==
+
+Distribution is the last competitive advantage in technology. The companies acquiring it through traditional M&A are paying extraordinary premiums — not for products or codebases, but for user bases. The rest is quietly discarded. Products get sunset. Codebases get migrated or retired. Founders serve out earn-outs. What endures is the distribution. Everything else was the cost of reaching it.
+
+We believe distribution can be manufactured to order — co-designed with a committed buyer, built as a free workflow tool targeting a precise enterprise ICP, grown into a behaviourally qualified user base, and transferred cleanly with zero integration debt. Pre-sold, not speculative. Qualified on usage, not vanity metrics. Six to nine months from concept to close, not eighteen to twenty-four.
+
+== About ==
+
+Distribution.com is an independent research and operating practice founded by Viktoria Izdebska. We study distribution economics and are building toward a system for manufacturing distribution assets for companies executing buy-and-build strategies.
