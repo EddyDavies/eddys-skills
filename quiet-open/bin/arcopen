@@ -11,6 +11,11 @@
 # specifiers go stale after the make). Then notifies via the same
 # Ghostty/notification path as notify-web-ready.sh.
 #
+# If an unpinned tab in the target space already shows the same URL (ignoring
+# #fragment or ?query), that tab is reloaded instead of a duplicate being
+# opened, so reopening a rebuilt report never stacks tabs. Pinned (saved) tabs
+# and other spaces are not checked.
+#
 # If the named space does not exist (renamed?), the tab opens in the active
 # space instead. If Arc scripting is unavailable (not running, stalled, or
 # no Automation permission), falls back to notify-web-ready.sh so the URL
@@ -105,20 +110,49 @@ on run argv
 		tell application "Arc"
 			if (count of windows) is 0 then make new window
 			tell front window
+				-- Resolve the target space first: the named one, else the active one.
+				set targetIdx to 0
+				set origTitle to title of active space
 				if spaceName is not "" then
-					set origTitle to title of active space
 					set ts to title of every space
 					repeat with i from 1 to (length of ts)
 						if (item i of ts) is spaceName then
-							tell space i to make new tab with properties {URL:theUrl}
-							if origTitle is not spaceName then tell space origTitle to focus
-							return "opened in space " & spaceName
+							set targetIdx to i
+							exit repeat
 						end if
 					end repeat
 					-- named space missing: fall through to active space
 				end if
-				tell active space to make new tab with properties {URL:theUrl}
-				return "opened in active space"
+				if targetIdx is 0 then
+					set ts to title of every space
+					repeat with i from 1 to (length of ts)
+						if (item i of ts) is origTitle then
+							set targetIdx to i
+							exit repeat
+						end if
+					end repeat
+				end if
+				set targetTitle to title of space targetIdx
+
+				-- Reuse: if an unpinned (Today) tab in the target space already shows
+				-- this page (ignoring a #fragment or ?query), reload it instead of
+				-- opening a duplicate. Only that space, only unpinned tabs, fetched
+				-- in one bulk Apple Event (a per-tab scan of thousands of tabs takes
+				-- ~30s and blows the 8s timeout).
+				try
+					set {us, tids} to {URL, id} of (every tab of space targetIdx whose location is "unpinned")
+					repeat with ti from 1 to (length of us)
+						set u to item ti of us
+						if u is theUrl or u starts with (theUrl & "#") or u starts with (theUrl & "?") then
+							tell (first tab of space targetIdx whose id is (item ti of tids)) to reload
+							return "reloaded existing tab in space " & targetTitle
+						end if
+					end repeat
+				end try
+
+				tell space targetIdx to make new tab with properties {URL:theUrl}
+				if origTitle is not targetTitle then tell space origTitle to focus
+				return "opened in space " & targetTitle
 			end tell
 		end tell
 	end timeout
