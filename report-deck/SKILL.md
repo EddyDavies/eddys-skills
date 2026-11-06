@@ -42,7 +42,7 @@ Opt in only. Eddy found the Slides button annoying on every page (26 Oct 2026), 
 uv run --no-project python ~/.claude/skills/report-deck/inject.py <report.html> <deck.json>
 ```
 
-4. Open the report as usual (`arcopen '<path>'`).
+4. Open the report as usual (`diaopen '<path>'`).
 
 ## Writing the slides
 

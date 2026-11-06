@@ -1,0 +1,52 @@
+#!/bin/bash
+# diafocus <url> [profile-name]
+# Click action for diaopen's notification: bring Dia forward on the tab with
+# that URL (searching the given profile first, then every profile). Falls
+# back to focusing the profile, then to just activating Dia.
+set -uo pipefail
+url="${1:-}"
+profile="${2:-}"
+
+read -r -d '' script <<'APPLESCRIPT' || true
+on run argv
+	set theUrl to item 1 of argv
+	set wanted to item 2 of argv
+	with timeout of 8 seconds
+		tell application "Dia"
+			if (count of windows) is 0 then
+				activate
+				return "activated Dia"
+			end if
+			set w to front window
+			set order to {}
+			if wanted is not "" then
+				try
+					set end of order to profile wanted of w
+				end try
+			end if
+			repeat with p in (every profile of w)
+				set end of order to (contents of p)
+			end repeat
+			repeat with p in order
+				set {us, tids} to {URL, id} of every tab of p
+				repeat with i from 1 to (length of us)
+					if (item i of us) starts with theUrl then
+						focus (first tab of p whose id is (item i of tids))
+						activate
+						return "focused tab"
+					end if
+				end repeat
+			end repeat
+			if wanted is not "" then
+				try
+					focus (profile wanted of w)
+				end try
+			end if
+			activate
+		end tell
+	end timeout
+	return "activated Dia"
+end run
+APPLESCRIPT
+
+osascript -e "$script" "$url" "$profile"

@@ -34,7 +34,7 @@ Eddy reviews; he does not want to restate the method. Every workshop follows thi
 Label and one line title; the tradeoff in one or two lines; the decision it answers; what it reuses and what it replaces; NEW BACKEND items; the references it drew on.
 
 ## 6. The page
-- One self contained HTML page per workshop in the project's reports folder (dated), assets beside it, opened with arcopen in the project's Arc space.
+- One self contained HTML page per workshop in the project's reports folder (dated), assets beside it, opened with diaopen in the project's Dia profile.
 - Recommendation at the top; a pick control and notes per decision; **Copy picks as prompt** (and JSON) so answers round trip; localStorage inside try/catch.
 - Keep it light: lazy loaded images, no heavy libraries, under about 10 MB; phone width safe, no horizontal scroll. If a page gets big, split it rather than make Eddy wait for it to load.
 - Superseded options come off the page once he has picked; keep the record in the bead or an archive page, not in front of him.

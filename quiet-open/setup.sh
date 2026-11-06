@@ -2,7 +2,7 @@
 # setup.sh: install the quiet-open flow on this machine, idempotently.
 #
 # What it does:
-#   1. Symlinks bin/ scripts (arcopen, arcfocus, mdrefresh, mdpreview) into ~/.local/bin
+#   1. Symlinks bin/ scripts (diaopen, diafocus, arcopen alias, mdrefresh, mdpreview) into ~/.local/bin
 #   2. Symlinks hooks/ scripts into ~/.claude/hooks
 #   3. Merges the two required hook entries into ~/.claude/settings.json:
 #      PreToolUse(Bash) block-browser-open, PostToolUse(Write|Edit) mdrefresh
@@ -33,7 +33,7 @@ link() { # link <repo-file> <live-path>
   echo "linked:   $dst -> $src"
 }
 
-for b in arcopen arcfocus mdrefresh mdpreview; do
+for b in diaopen diafocus arcopen mdrefresh mdpreview; do
   link "$ROOT/bin/$b" "$HOME/.local/bin/$b"
 done
 for h in block-browser-open.sh notify-web-ready.sh; do

@@ -1,0 +1,183 @@
+#!/bin/bash
+# diaopen: open a URL (or local file) in Dia WITHOUT stealing focus, into a
+# named Dia profile.
+#
+#   diaopen <url|path> [profile-name|active]
+#
+# Creates the tab via AppleScript (never `open <url>`), so Dia is not
+# activated: no focus steal, no desktop switch. Then notifies; clicking the
+# notification brings Dia forward on that tab (diafocus).
+#
+# Dia quirks this works around (tested on Dia's scripting dictionary):
+#   - `make new tab` inside a non-active profile switches Dia's visible
+#     profile. So a tab for another profile is made in the active profile and
+#     then `move`d, which Dia documents as not changing the focused profile.
+#   - `focus` (tab or profile) raises Dia, so it is never called here.
+#   - A new tab is always selected; when it is moved away Dia selects some
+#     other tab in the current profile. If Dia is already frontmost, the tab
+#     that was showing is focused again (no focus steal possible then). If Dia
+#     is in the background it is left alone, since `focus` would raise it.
+#
+# If an unpinned tab in the target profile already shows the same URL
+# (ignoring #fragment or ?query), that tab is reloaded (URL set again)
+# instead of a duplicate being opened. Pinned tabs and other profiles are not
+# checked.
+#
+# Profile names match case-insensitively. A missing profile falls back to the
+# active one. If Dia scripting is unavailable (not running, no window, no
+# Automation permission), falls back to notify-web-ready.sh so the URL still
+# reaches you on the clipboard.
+#
+# The target profile comes from a line like "Dia profile: code" (nothing else
+# on the line) in the nearest CLAUDE.local.md, CLAUDE.md, AGENTS.md,
+# .claude/CLAUDE.local.md or .claude/CLAUDE.md walking up from the current
+# directory, then the user's global ~/.claude/CLAUDE.local.md and
+# ~/.claude/CLAUDE.md. A legacy "Arc space: <name>" line is read the same way
+# if a file has no "Dia profile:" line. Precedence: arg 2, then per-directory
+# (local before tracked), then global, then the active profile.
+#
+# CLAUDE.local.md is checked first in each directory: it is the untracked,
+# personal half of a repo's memory, so a public repo can point at a private
+# client's profile without naming the client in a tracked file. Nothing is
+# hardcoded here, so the script is shareable as is.
+set -uo pipefail
+
+profile_from_file() { # profile_from_file <file>
+  local s line
+  [[ -f "$1" ]] || return 1
+  line=$(grep -iE '^[-* ]*dia[ -]?profile:' "$1" 2>/dev/null | head -1)
+  [[ -n "$line" ]] || line=$(grep -iE '^[-* ]*arc[ -]?space:' "$1" 2>/dev/null | head -1)
+  s=$(printf '%s' "$line" \
+      | sed -E 's/^[^:]*:[[:space:]]*//; s/[[:space:]`"'"'"']*$//; s/^[`"'"'"']*//')
+  [[ -n "$s" ]] || return 1
+  printf '%s' "$s"
+}
+
+find_profile() {
+  local dir="$PWD" f
+  while :; do
+    for f in CLAUDE.local.md CLAUDE.md AGENTS.md .claude/CLAUDE.local.md .claude/CLAUDE.md; do
+      profile_from_file "$dir/$f" && return 0
+    done
+    [[ "$dir" == "/" ]] && break
+    dir=$(dirname "$dir")
+  done
+  profile_from_file "$HOME/.claude/CLAUDE.local.md" && return 0
+  profile_from_file "$HOME/.claude/CLAUDE.md" && return 0
+  return 1
+}
+
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+  echo "usage: diaopen <url|path> [profile-name|active]" >&2
+  exit 2
+fi
+url="$1"
+# A local file path is accepted too: turn it into a file:// URL so HTML
+# artifacts can be surfaced the same way as web pages.
+if [[ "$url" != *://* && -e "$url" ]]; then
+  url=$(python3 -c 'import sys,pathlib;print(pathlib.Path(sys.argv[1]).resolve().as_uri())' "$url")
+fi
+profile="${2:-}"
+if [[ -z "$profile" ]]; then
+  profile="$(find_profile)" || profile=""
+fi
+[[ "$profile" == "active" ]] && profile=""
+
+notify() { # notify <label> <body> <profile>
+  # terminal-notifier: clicking jumps to the tab (diafocus), each new one
+  # replaces the last (-group), and it clears itself after 30s unless a newer
+  # one has replaced it (the stamp file guards against removing that newer one).
+  local tn group=claude-diaopen stamp="${TMPDIR:-/tmp}/diaopen-notify.stamp" id
+  tn=$(command -v terminal-notifier || echo /opt/homebrew/bin/terminal-notifier)
+  if [[ -x "$tn" ]]; then
+    id="$$.$RANDOM"
+    printf '%s' "$id" >"$stamp"
+    if "$tn" -title "Claude: $1" -message "$2" -group "$group" \
+         -execute "$(printf '%q %q %q' "$HOME/.local/bin/diafocus" "$url" "$3")" >/dev/null 2>&1; then
+      ( sleep 30; [[ "$(cat "$stamp" 2>/dev/null)" == "$id" ]] && "$tn" -remove "$group" >/dev/null 2>&1 ) \
+        </dev/null >/dev/null 2>&1 &
+      disown 2>/dev/null
+      return 0
+    fi
+  fi
+  if { true 2>/dev/null >/dev/tty; } 2>/dev/null; then
+    printf '\033]777;notify;%s;%s\033\\' "Claude: $1" "$2" >/dev/tty
+  else
+    osascript -e "display notification \"$2\" with title \"Claude: $1\"" >/dev/null 2>&1
+  fi
+}
+
+# Kept in a variable (not a heredoc inside a command substitution) because
+# macOS bash 3.2 mis-parses quotes in that combination.
+# Returns "<what happened>|<profile name>".
+read -r -d '' script <<'EOF' || true
+on run argv
+	set theUrl to item 1 of argv
+	set wanted to item 2 of argv
+	set diaFront to (item 3 of argv) is "1"
+	with timeout of 8 seconds
+		tell application "Dia"
+			if (count of windows) is 0 then error "no Dia window"
+			set w to front window
+			set activeName to name of active profile of w
+			set targetName to activeName
+			if wanted is not "" then
+				set pns to name of every profile of w
+				repeat with i from 1 to (length of pns)
+					ignoring case
+						if (item i of pns) is wanted then set targetName to (item i of pns)
+					end ignoring
+				end repeat
+			end if
+			set tp to profile targetName of w
+			set prevId to missing value
+			try
+				set prevId to id of active tab of w
+			end try
+
+			-- Reuse an unpinned tab already showing this page. One bulk Apple
+			-- Event for the URLs, ids and pin flags, not a per-tab scan.
+			try
+				set {us, tids, pins} to {URL, id, isPinned} of every tab of tp
+				repeat with i from 1 to (length of us)
+					set u to item i of us
+					if (item i of pins) is false and (u is theUrl or u starts with (theUrl & "#") or u starts with (theUrl & "?")) then
+						set URL of (first tab of tp whose id is (item i of tids)) to theUrl
+						return "reloaded existing tab|" & targetName
+					end if
+				end repeat
+			end try
+
+			-- Always make in the active profile (making inside another profile
+			-- switches Dia's view), then move it if it belongs elsewhere.
+			set t to make new tab at end of tabs of (profile activeName of w) with properties {URL:theUrl}
+			if targetName is not activeName then
+				move t to tp
+				if diaFront and prevId is not missing value then
+					try
+						focus (first tab of (profile activeName of w) whose id is prevId)
+					end try
+				end if
+			end if
+			return "opened|" & targetName
+		end tell
+	end timeout
+end run
+EOF
+
+if pgrep -xq Dia; then
+  dia_front=0
+  [[ "$(lsappinfo info -only bundleid "$(lsappinfo front)" 2>/dev/null)" == *company.thebrowser.dia* ]] && dia_front=1
+  if result="$(osascript -e "$script" "$url" "$profile" "$dia_front" 2>&1)" && [[ "$result" == *"|"* ]]; then
+    what="${result%%|*}"
+    used="${result##*|}"
+    notify "Page loaded in Dia" "$what in $used: $url" "$used"
+    echo "diaopen: $what in profile $used: $url"
+    exit 0
+  fi
+  echo "diaopen: Dia scripting failed ($result); falling back to notify" >&2
+else
+  echo "diaopen: Dia not running; falling back to notify" >&2
+fi
+
+exec bash ~/.claude/hooks/notify-web-ready.sh "$url" "Web page ready"
