@@ -1,0 +1,94 @@
+<!--
+  UI workshop feedback kit. Paste this whole file just before </body> of any review page.
+  Set window.WORKSHOP_FEEDBACK first (see SKILL.md "Feedback layer"):
+  <script>window.WORKSHOP_FEEDBACK={
+    key:'topic-yyyymmdd',                       // localStorage key, unique per page
+    intro:'Here is my feedback on <topic>. Act on it: follow my picks, apply every note, then show me the result.',
+    decisions:[{id:'A',q:'Which way?',options:[['A1','Title','one line tradeoff',true],['A2','Title','tradeoff']]}],
+    items:'figure.cell',                         // CSS selector for every option or screenshot card to rate
+    insertAfter:'h1'                             // where the pick cards go (first match)
+  }</script>
+  Item labels come from data-label on the item, else nearest previous h2 + h3 + the item's first heading or caption.
+  The kit reuses the page's CSS variables (--fg --bg --card --line --muted) and falls back to neutral colours.
+-->
+<style>
+.wfk-fb{margin-top:10px;border-top:1px dashed var(--line,#ddd);padding-top:8px;font-size:14px}
+.wfk-opts{display:flex;gap:6px;flex-wrap:wrap}
+.wfk-chip{border:1px solid var(--line,#ccc);border-radius:99px;padding:3px 10px;cursor:pointer;user-select:none}
+.wfk-chip input,.wfk-opt input{position:absolute;opacity:0;pointer-events:none}
+.wfk-chip:has(input:checked){background:var(--fg,#111);color:var(--bg,#fff);border-color:var(--fg,#111)}
+.wfk-fb textarea,.wfk-dec textarea{display:block;width:100%;margin-top:6px;min-height:52px;font:inherit;font-size:14px;padding:6px 8px;border-radius:8px;border:1px solid var(--line,#ccc);background:var(--bg,#fff);color:var(--fg,#111);box-sizing:border-box}
+.wfk-dec{background:var(--card,#fff);border:2px solid var(--fg,#111);border-radius:12px;padding:14px 16px;margin:20px 0}
+.wfk-dec h2{margin:0 0 4px;font-size:20px}
+.wfk-opt{display:block;position:relative;border:1px solid var(--line,#ccc);border-radius:10px;padding:10px 12px;margin:8px 0;cursor:pointer}
+.wfk-opt:has(input:checked){border-color:var(--fg,#111);box-shadow:0 0 0 2px var(--fg,#111) inset}
+.wfk-code{font-weight:700;margin-right:6px}.wfk-rec{font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid currentColor;margin-left:6px}
+.wfk-opt small{color:var(--muted,#666)}
+.wfk-bar{position:sticky;bottom:0;background:var(--bg,#fff);border-top:1px solid var(--line,#ddd);padding:10px 16px;display:flex;gap:8px;align-items:center;justify-content:flex-end;z-index:50;flex-wrap:wrap}
+.wfk-bar button{font:inherit;font-weight:600;padding:8px 16px;border-radius:99px;border:1px solid var(--fg,#111);background:var(--fg,#111);color:var(--bg,#fff);cursor:pointer}
+.wfk-bar button.wfk-ghost{background:transparent;color:var(--fg,#111)}
+.wfk-count{color:var(--muted,#666);font-size:14px;margin-right:auto}
+</style>
+<script>
+(function(){
+  var C=window.WORKSHOP_FEEDBACK||{};var KEY='wfk-'+(C.key||location.pathname);
+  var saved={};try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+  var decs=C.decisions||[];
+  // Pick cards
+  var anchor=document.querySelector(C.insertAfter||'h1')||document.body.firstElementChild;
+  decs.slice().reverse().forEach(function(d){
+    var s=document.createElement('section');s.className='wfk-dec';
+    s.innerHTML='<h2>'+esc(d.id)+'. '+esc(d.q)+'</h2><p><small>Pick one, add notes, then press Copy as prompt at the bottom.</small></p>'+
+      d.options.map(function(o){return '<label class="wfk-opt"><input type="radio" name="wfk-'+esc(d.id)+'" value="'+esc(o[0])+'"'+(saved['d'+d.id]===o[0]?' checked':'')+'><span class="wfk-code">'+esc(o[0])+'</span><b>'+esc(o[1])+'</b>'+(o[3]?'<span class="wfk-rec">recommended</span>':'')+(o[2]?'<br><small>'+esc(o[2])+'</small>':'')+'</label>'}).join('')+
+      '<textarea data-wfk-dnote="'+esc(d.id)+'" placeholder="Notes on '+esc(d.id)+' (optional)">'+esc(saved['n'+d.id]||'')+'</textarea>';
+    anchor.after(s);
+  });
+  // Per item rating + notes
+  function labelFor(el){
+    if(el.dataset.label)return el.dataset.label;
+    var parts=[],n=el;var h2,h3;
+    while(n&&n!==document.body&&!(h2&&h3)){var p=n.previousElementSibling;while(p){if(!h3&&p.tagName==='H3')h3=p.textContent.trim();if(!h2&&p.tagName==='H2'){h2=p.textContent.trim();break}p=p.previousElementSibling}if(h2)break;n=n.parentElement}
+    var own=el.querySelector('figcaption b,figcaption,h3,h4,b,strong');
+    [h2,h3,own&&own.textContent.trim()].forEach(function(x){if(x)parts.push(x)});
+    return parts.join(', ')||'item';
+  }
+  var items=[].slice.call(document.querySelectorAll(C.items||'[data-wfk-item]'));
+  items.forEach(function(el,i){
+    var id='i'+i,s=saved[id]||{};el.dataset.wfkId=id;el.dataset.wfkLabel=labelFor(el);
+    var f=document.createElement('div');f.className='wfk-fb';
+    f.innerHTML='<div class="wfk-opts">'+['Like','Okay','Dislike'].map(function(v){return '<label class="wfk-chip"><input type="radio" name="wfk-'+id+'" value="'+v+'"'+(s.v===v?' checked':'')+'>'+v+'</label>'}).join('')+'</div><textarea placeholder="What would you change? (optional)">'+esc(s.n||'')+'</textarea>';
+    el.appendChild(f);
+  });
+  var bar=document.createElement('div');bar.className='wfk-bar';
+  bar.innerHTML='<span class="wfk-count"></span><button type="button" class="wfk-ghost" data-wfk="json">Copy JSON</button><button type="button" data-wfk="prompt">Copy as prompt</button>';
+  document.body.appendChild(bar);
+  function collect(){
+    var raw={},out={picks:{},items:[]},lines=[C.intro||'Here is my feedback on this page. Act on it: follow my picks, apply every note, then show me the result.'];
+    decs.forEach(function(d){
+      var r=document.querySelector('input[name="wfk-'+d.id+'"]:checked'),t=document.querySelector('[data-wfk-dnote="'+d.id+'"]').value.trim();
+      raw['d'+d.id]=r?r.value:'';raw['n'+d.id]=t;
+      var o=d.options.filter(function(x){return r&&x[0]===r.value})[0];
+      out.picks[d.id]={pick:o?o[0]:null,title:o?o[1]:null,notes:t||null};
+      lines.push(d.id+'. '+d.q+' Pick: '+(o?o[0]+' '+o[1]:'none chosen')+(t?'. Notes: '+t:''));
+    });
+    var n=0;
+    items.forEach(function(el){
+      var r=el.querySelector('.wfk-fb input:checked'),t=el.querySelector('.wfk-fb textarea').value.trim();
+      raw[el.dataset.wfkId]={v:r?r.value:'',n:t};
+      if(r||t){n++;out.items.push({item:el.dataset.wfkLabel,rating:r?r.value:null,notes:t||null});lines.push('- '+el.dataset.wfkLabel+': '+(r?r.value:'')+(t?(r?'; ':'')+t:''))}
+    });
+    return {raw:raw,prompt:lines.join('\n'),json:JSON.stringify(out,null,2),n:n};
+  }
+  function update(){var c=collect(),p=decs.filter(function(d){return c.raw['d'+d.id]}).length;bar.querySelector('.wfk-count').textContent=p+' of '+decs.length+' picked, '+c.n+' item'+(c.n===1?'':'s')+' rated'}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(collect().raw))}catch(e){}update()}
+  document.addEventListener('change',save);document.addEventListener('input',save);
+  function copy(t,b,label){
+    var done=function(){b.textContent='Copied, paste it in the chat';setTimeout(function(){b.textContent=label},2500)};
+    var fallback=function(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}a.remove();done()};
+    try{navigator.clipboard.writeText(t).then(done,fallback)}catch(e){fallback()}
+  }
+  bar.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var c=collect();if(b.dataset.wfk==='json')copy(c.json,b,'Copy JSON');else copy(c.prompt,b,'Copy as prompt')});
+  update();
+})();
+</script>

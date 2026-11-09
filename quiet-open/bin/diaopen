@@ -18,10 +18,10 @@
 #     that was showing is focused again (no focus steal possible then). If Dia
 #     is in the background it is left alone, since `focus` would raise it.
 #
-# If an unpinned tab in the target profile already shows the same URL
+# If a tab in the target profile (pinned or not) already shows the same URL
 # (ignoring #fragment or ?query), that tab is reloaded (URL set again)
-# instead of a duplicate being opened. Pinned tabs and other profiles are not
-# checked.
+# instead of a duplicate being opened; the output says when it was pinned.
+# Other profiles are not checked (use --check for that).
 #
 # Profile names match case-insensitively. A missing profile falls back to the
 # active one. If Dia scripting is unavailable (not running, no window, no
@@ -67,8 +67,13 @@ find_profile() {
   return 1
 }
 
+check=0
+if [[ "${1:-}" == "--check" ]]; then
+  check=1
+  shift
+fi
 if [[ $# -lt 1 || $# -gt 2 ]]; then
-  echo "usage: diaopen <url|path> [profile-name|active]" >&2
+  echo "usage: diaopen [--check] <url|path> [profile-name|active]" >&2
   exit 2
 fi
 url="$1"
@@ -82,6 +87,56 @@ if [[ -z "$profile" ]]; then
   profile="$(find_profile)" || profile=""
 fi
 [[ "$profile" == "active" ]] && profile=""
+
+# --check: report which Dia profiles have a tab showing this page (same
+# match as reuse: exact URL, or with #fragment / ?query), without opening or
+# reloading anything. Checks every profile, pinned tabs included.
+# Exit 0 = open somewhere, 1 = not open, 3 = Dia not scriptable.
+if (( check )); then
+  read -r -d '' cscript <<'EOF' || true
+on run argv
+	set theUrl to item 1 of argv
+	set hits to {}
+	with timeout of 8 seconds
+		tell application "Dia"
+			if (count of windows) is 0 then error "no Dia window"
+			repeat with w in windows
+				repeat with p in profiles of w
+					try
+						set {us, pins} to {URL, isPinned} of every tab of p
+						repeat with i from 1 to (length of us)
+							set u to item i of us
+							if u is theUrl or u starts with (theUrl & "#") or u starts with (theUrl & "?") then
+								set h to name of p
+								if (item i of pins) is true then set h to h & " (pinned)"
+								set end of hits to h
+							end if
+						end repeat
+					end try
+				end repeat
+			end repeat
+		end tell
+	end timeout
+	set AppleScript's text item delimiters to ", "
+	return "ok|" & (hits as text)
+end run
+EOF
+  if ! pgrep -xq Dia; then
+    echo "diaopen --check: Dia not running, so not open: $url"
+    exit 1
+  fi
+  if ! result="$(osascript -e "$cscript" "$url" 2>&1)" || [[ "$result" != ok\|* ]]; then
+    echo "diaopen --check: Dia scripting failed ($result)" >&2
+    exit 3
+  fi
+  hits="${result#ok|}"
+  if [[ -n "$hits" ]]; then
+    echo "diaopen --check: open in $hits: $url"
+    exit 0
+  fi
+  echo "diaopen --check: not open: $url"
+  exit 1
+fi
 
 notify() { # notify <label> <body> <profile>
   # terminal-notifier: clicking jumps to the tab (diafocus), each new one
@@ -135,14 +190,15 @@ on run argv
 				set prevId to id of active tab of w
 			end try
 
-			-- Reuse an unpinned tab already showing this page. One bulk Apple
+			-- Reuse a tab (pinned or not) already showing this page. One bulk Apple
 			-- Event for the URLs, ids and pin flags, not a per-tab scan.
 			try
 				set {us, tids, pins} to {URL, id, isPinned} of every tab of tp
 				repeat with i from 1 to (length of us)
 					set u to item i of us
-					if (item i of pins) is false and (u is theUrl or u starts with (theUrl & "#") or u starts with (theUrl & "?")) then
+					if u is theUrl or u starts with (theUrl & "#") or u starts with (theUrl & "?") then
 						set URL of (first tab of tp whose id is (item i of tids)) to theUrl
+						if (item i of pins) is true then return "reloaded existing pinned tab|" & targetName
 						return "reloaded existing tab|" & targetName
 					end if
 				end repeat

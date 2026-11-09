@@ -1,0 +1,318 @@
+#!/usr/bin/env python3
+"""dev-tidy: stop wrangler dev servers and OrbStack containers nobody is using, then quit OrbStack.
+
+  dev-tidy status               wrangler servers and containers: owner chat, idle, verdict
+  dev-tidy sweep [--dry-run]    launchd job (every 10 min): apply the rules below
+  dev-tidy end --session ID     stop what that chat started (SessionEnd hook)
+  dev-tidy keep NAME / unkeep NAME   protect a container from being stopped
+  dev-tidy hook-post            PostToolUse(Bash) hook: record which chat started what
+
+Rules (sweep):
+  wrangler   kill when the chat that started it has ended or its claude process is gone;
+             kill an unowned orphan (parent is launchd) older than 6h. Terminal-run servers are never touched.
+  container  stop when crash looping (restarting, 10+ restarts); stop when every chat that used it
+             has ended and nothing is connected; stop when no host connection to its ports for 45 min
+             and no live chat used it in the last 45 min. Kept containers are skipped.
+  orbstack   `orbctl stop` when no container has run for 15 min (at once when a chat end emptied it).
+
+State: ~/.claude/dev-tidy/ (ledger.json, keep.txt, sweep.log).
+"""
+import json, os, re, subprocess, sys, time
+
+HOME = os.path.expanduser("~")
+STATE = os.path.join(HOME, ".claude", "dev-tidy")
+LEDGER, KEEP, LOG = (os.path.join(STATE, f) for f in ("ledger.json", "keep.txt", "sweep.log"))
+WRANGLER_CMD = re.compile(r"\bwrangler\b.*\bdev\b")
+DOCKER_CMD = re.compile(r"\bdocker\s+(compose\s+.*\bup\b|start\b|run\b|restart\b|exec\b)|\bdocker-compose\s+up\b")
+WRANGLER_PROC = re.compile(r"wrangler(\.js|-dist/cli\.js)?\s+(pages\s+)?dev\b")
+CLAUDE_PROC = re.compile(r"(\S*/)?claude(\s|$)")
+ORPHAN_MAX_S = 6 * 3600
+IDLE_S = 45 * 60
+ORB_EMPTY_S = 15 * 60
+
+
+def sh(*a, timeout=60):
+    try:
+        return subprocess.run(a, capture_output=True, text=True, timeout=timeout)
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return subprocess.CompletedProcess(a, 1, "", "")
+
+
+def load():
+    try:
+        with open(LEDGER) as f:
+            d = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        d = {}
+    for k, v in (("sessions", {}), ("starts", []), ("containers", {}), ("orb_empty_since", None)):
+        d.setdefault(k, v)
+    return d
+
+
+def save(d):
+    os.makedirs(STATE, exist_ok=True)
+    d["starts"] = [s for s in d["starts"] if time.time() - s["t"] < 30 * 86400]
+    tmp = LEDGER + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(d, f, indent=1)
+    os.replace(tmp, LEDGER)
+
+
+def keep_set():
+    try:
+        return {l.split("#")[0].strip() for l in open(KEEP) if l.split("#")[0].strip()}
+    except FileNotFoundError:
+        return set()
+
+
+def log(lines, dry):
+    for l in lines:
+        print(("would: " if dry else "") + l)
+    if lines and not dry:
+        os.makedirs(STATE, exist_ok=True)
+        with open(LOG, "a") as f:
+            for l in lines:
+                f.write(time.strftime("%Y-%m-%d %H:%M ") + l + "\n")
+
+
+# processes -----------------------------------------------------------------
+def etime_s(e):
+    d, _, rest = e.rpartition("-")
+    parts = [int(x) for x in rest.split(":")]
+    while len(parts) < 3:
+        parts.insert(0, 0)
+    return (int(d) if d else 0) * 86400 + parts[0] * 3600 + parts[1] * 60 + parts[2]
+
+
+def procs():
+    res = {}
+    for line in sh("ps", "-axo", "pid=,ppid=,etime=,command=").stdout.splitlines():
+        p = line.split(None, 3)
+        if len(p) == 4:
+            res[int(p[0])] = {"pid": int(p[0]), "ppid": int(p[1]), "age": etime_s(p[2]), "cmd": p[3]}
+    return res
+
+
+def claude_ancestor(pid, ps):
+    seen = set()
+    while pid in ps and pid > 1 and pid not in seen:
+        seen.add(pid)
+        if CLAUDE_PROC.match(ps[pid]["cmd"]):
+            return pid
+        pid = ps[pid]["ppid"]
+    return None
+
+
+def session_live(sid, d, ps):
+    s = d["sessions"].get(sid)
+    pid = (s or {}).get("pid") or -1
+    return bool(s) and not s.get("ended") and pid in ps and bool(CLAUDE_PROC.match(ps[pid]["cmd"]))
+
+
+def cwd_of(pid):
+    out = sh("lsof", "-a", "-p", str(pid), "-d", "cwd", "-Fn").stdout
+    return os.path.realpath(next((l[1:] for l in out.splitlines() if l.startswith("n")), ""))
+
+
+def port_of(cmd):
+    m = re.search(r"--port[ =](\d+)|\s-p\s+(\d+)", cmd)
+    return int(m.group(1) or m.group(2)) if m else 8787
+
+
+def wranglers(ps):
+    """The top process of each wrangler dev tree."""
+    hits = [p for p in ps.values() if WRANGLER_PROC.search(p["cmd"]) or re.search(r"npm exec wrangler.*\bdev\b", p["cmd"])]
+    ids = {p["pid"] for p in hits}
+    roots = [p for p in hits if p["ppid"] not in ids]
+    for r in roots:
+        r["cwd"], r["port"], r["orphan"] = cwd_of(r["pid"]), port_of(r["cmd"]), r["ppid"] == 1
+    return roots
+
+
+def tree(pid, ps):
+    return [pid] + [k for c in ps.values() if c["ppid"] == pid for k in tree(c["pid"], ps)]
+
+
+# containers ----------------------------------------------------------------
+def orb_running():
+    return sh("orbctl", "status").stdout.strip() == "Running"
+
+
+def containers():
+    ids = sh("docker", "ps", "-q").stdout.split()
+    if not ids:
+        return []
+    res = []
+    for c in json.loads(sh("docker", "inspect", *ids).stdout or "[]"):
+        lbl = c["Config"].get("Labels") or {}
+        ports = sorted({int(b["HostPort"]) for bs in (c["NetworkSettings"].get("Ports") or {}).values() if bs
+                        for b in bs if b.get("HostPort")})
+        res.append({"name": c["Name"].lstrip("/"), "state": c["State"]["Status"], "restarts": c.get("RestartCount", 0),
+                    "dir": lbl.get("com.docker.compose.project.working_dir", ""), "ports": ports})
+    return res
+
+
+def connected(ports):
+    return any(sh("lsof", "-nP", f"-iTCP:{p}", "-sTCP:ESTABLISHED", "-t").stdout.strip() for p in ports)
+
+
+def container_starts(c, d):
+    return [s for s in d["starts"] if s["kind"] == "docker" and (
+        re.search(rf"(^|[\s/=]){re.escape(c['name'])}(\s|$)", s["cmd"])
+        or (c["dir"] and s["cwd"].startswith(c["dir"]))
+        or any(re.search(rf"\b{p}\b", s["cmd"]) for p in c["ports"]))]
+
+
+# verdicts ------------------------------------------------------------------
+def ended_by(own, ended_session, d, ps):
+    """True when ended_session used it and no other live chat did."""
+    return bool(ended_session) and any(s["session"] == ended_session for s in own) and \
+        not any(session_live(s["session"], d, ps) for s in own if s["session"] != ended_session)
+
+
+def plan(d, ps, ended_session=None):
+    now, acts, rows, keep = time.time(), [], [], keep_set()
+    for w in wranglers(ps):
+        own = [s for s in d["starts"] if s["kind"] == "wrangler" and s["cwd"] == w["cwd"] and s.get("port") == w["port"]]
+        live = any(session_live(s["session"], d, ps) for s in own)
+        if ended_by(own, ended_session, d, ps):
+            why = "its chat ended"
+        elif own and not live:
+            why = "owner chat gone"
+        elif not own and w["orphan"] and w["age"] > ORPHAN_MAX_S:
+            why = f"unowned orphan, {w['age'] // 3600}h old"
+        else:
+            why = None
+        where = w["cwd"].replace(HOME, "~")
+        rows.append(("wrangler", f":{w['port']}", where, "live chat" if live else ("chat gone" if own else "no owner"), why or "keep"))
+        if why:
+            acts.append(("kill", w, f"killed wrangler :{w['port']} {where} ({why})"))
+    if orb_running():
+        cs = containers()
+        for c in cs:
+            st = d["containers"].setdefault(c["name"], {})
+            busy = connected(c["ports"])
+            if busy or "busy" not in st:
+                st["busy"] = now
+            own = container_starts(c, d)
+            live = [s for s in own if session_live(s["session"], d, ps)]
+            idle = now - st["busy"]
+            if c["name"] in keep:
+                why = None
+            elif c["state"] == "restarting" and c["restarts"] >= 10:
+                why = f"crash looping, {c['restarts']} restarts"
+            elif ended_by(own, ended_session, d, ps) and not busy:
+                why = "its chat ended"
+            elif own and not live and not busy:
+                why = "every chat that used it has ended"
+            elif idle > IDLE_S and not any(now - s["t"] < IDLE_S for s in live):
+                why = f"no connections for {int(idle // 60)} min"
+            else:
+                why = None
+            state = "kept" if c["name"] in keep else ("busy" if busy else f"idle {int(idle // 60)}m")
+            rows.append(("container", c["name"], ",".join(map(str, c["ports"])) or "-", state, why or "keep"))
+            if why:
+                acts.append(("stop", c, f"stopped container {c['name']} ({why})"))
+        left = len(cs) - sum(a[0] == "stop" for a in acts)
+        if left == 0:
+            d["orb_empty_since"] = d["orb_empty_since"] or now
+            if now - d["orb_empty_since"] >= ORB_EMPTY_S or (ended_session and cs):
+                acts.append(("orb", None, "stopped OrbStack (no containers running)"))
+        else:
+            d["orb_empty_since"] = None
+        rows.append(("orbstack", "running", "", f"{left} container(s) left", "stop" if acts and acts[-1][0] == "orb" else "keep"))
+    else:
+        d["orb_empty_since"] = None
+    return acts, rows
+
+
+def apply(acts, ps, dry):
+    for kind, obj, _ in [] if dry else acts:
+        if kind == "kill":
+            for pid in reversed(tree(obj["pid"], ps)):
+                try:
+                    os.kill(pid, 15)
+                except ProcessLookupError:
+                    pass
+        elif kind == "stop":
+            sh("docker", "update", "--restart=no", obj["name"])
+            sh("docker", "stop", obj["name"], timeout=120)
+        elif kind == "orb":
+            sh("orbctl", "stop", timeout=120)
+    log([m for _, _, m in acts], dry)
+
+
+def cmd_status(_):
+    _, rows = plan(load(), procs())
+    for r in rows:
+        print("  ".join(str(x).ljust(w) for x, w in zip(r, (10, 26, 52, 18, 0))))
+    print("" if rows else "nothing running")
+
+
+def cmd_sweep(a):
+    d, ps = load(), procs()
+    acts, _ = plan(d, ps)
+    apply(acts, ps, "--dry-run" in a)
+    if "--dry-run" not in a:
+        save(d)
+
+
+def cmd_end(a):
+    sid = a[a.index("--session") + 1] if "--session" in a else ""
+    d, ps = load(), procs()
+    if sid:
+        d["sessions"].setdefault(sid, {})["ended"] = time.time()
+    acts, _ = plan(d, ps, ended_session=sid)
+    apply(acts, ps, False)
+    save(d)
+
+
+def cmd_hook_post(_):
+    try:
+        ev = json.load(sys.stdin)
+    except json.JSONDecodeError:
+        return
+    cmd = (ev.get("tool_input") or {}).get("command") or ""
+    kind = "wrangler" if WRANGLER_CMD.search(cmd) else "docker" if DOCKER_CMD.search(cmd) else None
+    if not kind or re.match(r"\s*dev-tidy\b", cmd):
+        return
+    sid, ps = ev.get("session_id", ""), procs()
+    cwd = ev.get("cwd") or os.getcwd()
+    m = re.search(r"(?:^|&&|;)\s*cd\s+(\S+)", cmd)
+    if m:
+        cwd = os.path.join(cwd, os.path.expanduser(m.group(1).strip("'\"")))
+    d = load()
+    d["sessions"][sid] = {"pid": claude_ancestor(os.getpid(), ps), "seen": time.time()}
+    d["starts"].append({"kind": kind, "session": sid, "cwd": os.path.realpath(cwd), "cmd": cmd[:500], "t": time.time(),
+                        "port": port_of(cmd) if kind == "wrangler" else None})
+    save(d)
+
+
+def cmd_hook_end(_):
+    try:
+        ev = json.load(sys.stdin)
+    except json.JSONDecodeError:
+        return
+    if ev.get("session_id"):
+        cmd_end(["--session", ev["session_id"]])
+
+
+def cmd_keep(a, add=True):
+    cur = keep_set() | set(a) if add else keep_set() - set(a)
+    os.makedirs(STATE, exist_ok=True)
+    with open(KEEP, "w") as f:
+        f.writelines(n + "\n" for n in sorted(cur))
+    print("kept:", ", ".join(sorted(cur)) or "none")
+
+
+def main():
+    a = sys.argv[1:]
+    if not a or a[0] in ("-h", "--help", "help"):
+        print(__doc__)
+        return
+    {"status": cmd_status, "sweep": cmd_sweep, "end": cmd_end, "hook-post": cmd_hook_post, "hook-end": cmd_hook_end,
+     "keep": cmd_keep, "unkeep": lambda r: cmd_keep(r, False)}.get(a[0], lambda _: sys.exit(f"unknown: {a[0]}"))(a[1:])
+
+
+if __name__ == "__main__":
+    main()

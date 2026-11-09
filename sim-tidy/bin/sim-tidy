@@ -1,0 +1,298 @@
+#!/usr/bin/env python3
+"""sim-tidy: keep iOS Simulators from eating RAM and disk.
+
+  sim-tidy status                 every sim: state, size, last used, kept/clone flags
+  sim-tidy shutdown --session ID  shut down the sims that chat touched last (SessionEnd hook)
+  sim-tidy shutdown --all         shut down every booted sim, kill idb_companion, quit Simulator.app
+  sim-tidy prune [--days N] [--yes] [--all-unkept]
+                                  delete shut down, unkept sims idle N days (default 3); dry run without --yes
+  sim-tidy sweep                  launchd job: shut down sims idle 2h, delete agent clones idle 3 days
+  sim-tidy keep UDID [...]        protect sims from prune (unkeep to undo)
+  sim-tidy hook-post              PostToolUse(Bash) hook: record which chat touched which sim
+
+State lives in ~/.claude/sim-tidy/ (ledger.json, keep.txt, sweep.log).
+"""
+import json, os, re, subprocess, sys, time
+
+HOME = os.path.expanduser("~")
+STATE = os.path.join(HOME, ".claude", "sim-tidy")
+LEDGER = os.path.join(STATE, "ledger.json")
+KEEP = os.path.join(STATE, "keep.txt")
+LOG = os.path.join(STATE, "sweep.log")
+DEVDIR = os.path.join(HOME, "Library/Developer/CoreSimulator/Devices")
+UUID_RE = re.compile(r"[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}", re.I)
+SIM_WORDS = re.compile(r"simctl|idb |idb_companion|flutter (run|drive|test.*-d)|xcodebuild|maestro|-d [0-9A-F]{8}-", re.I)
+IDLE_SHUTDOWN_S = 2 * 3600
+CLONE_DELETE_DAYS = 3
+
+
+def sh(*args, timeout=60):
+    return subprocess.run(args, capture_output=True, text=True, timeout=timeout)
+
+
+def devices():
+    out = sh("xcrun", "simctl", "list", "-j", "devices").stdout
+    res = []
+    for runtime, devs in json.loads(out or "{}").get("devices", {}).items():
+        for d in devs:
+            d["runtime"] = runtime.rsplit(".", 1)[-1]
+            res.append(d)
+    return res
+
+
+def load_json(path, default):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return default
+
+
+def save_ledger(led):
+    os.makedirs(STATE, exist_ok=True)
+    tmp = LEDGER + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(led, f, indent=1)
+    os.replace(tmp, LEDGER)
+
+
+def keep_set():
+    try:
+        with open(KEEP) as f:
+            return {l.split("#")[0].strip().upper() for l in f if l.split("#")[0].strip()}
+    except FileNotFoundError:
+        return set()
+
+
+def size_gb(udid):
+    r = sh("du", "-sk", os.path.join(DEVDIR, udid))
+    try:
+        return int(r.stdout.split()[0]) / 1048576
+    except (IndexError, ValueError):
+        return 0.0
+
+
+def last_used(udid, led):
+    """Latest of: ledger touch, device.plist mtime (rewritten on every boot/shutdown)."""
+    t = led.get(udid, {}).get("last_used", 0)
+    try:
+        t = max(t, os.path.getmtime(os.path.join(DEVDIR, udid, "device.plist")))
+    except OSError:
+        pass
+    return t
+
+
+def busy_procs(udid):
+    """Processes (other than idb_companion itself) that name this sim: flutter run, xcodebuild, idb ui..."""
+    out = sh("ps", "-axo", "pid=,command=").stdout
+    hits = []
+    for line in out.splitlines():
+        if udid.lower() in line.lower() and "idb_companion" not in line and "sim-tidy" not in line:
+            hits.append(line.strip()[:120])
+    return hits
+
+
+def kill_companions(udids):
+    out = sh("ps", "-axo", "pid=,command=").stdout
+    for line in out.splitlines():
+        if "idb_companion" in line and any(u.lower() in line.lower() for u in udids):
+            pid = line.split()[0]
+            sh("kill", pid)
+
+
+def quit_simulator_if_idle():
+    if not any(d["state"] == "Booted" for d in devices()):
+        sh("osascript", "-e", 'if application "Simulator" is running then tell application "Simulator" to quit')
+
+
+def shutdown(udids, why):
+    done = []
+    for u in udids:
+        r = sh("xcrun", "simctl", "shutdown", u, timeout=90)
+        if r.returncode == 0 or "current state: Shutdown" in r.stderr:
+            done.append(u)
+        else:
+            print(f"FAILED to shut down {u}: {r.stderr.strip()}", file=sys.stderr)
+    if done:
+        kill_companions(done)
+        quit_simulator_if_idle()
+        print(f"shut down {len(done)} sim(s) ({why}): {', '.join(done)}")
+    return done
+
+
+def delete(udids):
+    gone = []
+    for u in udids:
+        r = sh("xcrun", "simctl", "delete", u, timeout=180)
+        if r.returncode == 0:
+            gone.append(u)
+        else:
+            print(f"FAILED to delete {u}: {r.stderr.strip()}", file=sys.stderr)
+    led = load_json(LEDGER, {})
+    for u in gone:
+        led.pop(u, None)
+    save_ledger(led)
+    return gone
+
+
+# ---------------------------------------------------------------- commands
+
+def cmd_status(_):
+    led, keep = load_json(LEDGER, {}), keep_set()
+    rows = []
+    for d in devices():
+        u = d["udid"]
+        rows.append((size_gb(u), d, last_used(u, led)))
+    rows.sort(key=lambda r: -r[0])
+    now = time.time()
+    total = 0
+    print(f"{'size':>6}  {'state':8} {'idle':>6}  flags  name  (udid)")
+    for gb, d, t in rows:
+        total += gb
+        u = d["udid"]
+        flags = ("K" if u in keep else "-") + ("C" if led.get(u, {}).get("created") else "-")
+        idle = (now - t) / 86400
+        print(f"{gb:5.1f}G  {d['state']:8} {idle:5.1f}d  {flags:5}  {d['name']}  ({u})")
+    print(f"total {total:.1f}G across {len(rows)} sims.  K = kept (never pruned), C = created by an agent")
+
+
+def cmd_shutdown(args):
+    booted = [d for d in devices() if d["state"] == "Booted"]
+    if "--all" in args:
+        shutdown([d["udid"] for d in booted], "all")
+        kill_companions([d["udid"] for d in booted])
+        return
+    sid = args[args.index("--session") + 1] if "--session" in args else None
+    if not sid:
+        sys.exit("need --session ID or --all")
+    led = load_json(LEDGER, {})
+    mine = [d["udid"] for d in booted if led.get(d["udid"], {}).get("last_session") == sid]
+    mine = [u for u in mine if not busy_procs(u)]
+    if mine:
+        shutdown(mine, f"chat {sid[:8]} ended")
+
+
+def prune_candidates(days, only_clones, led, keep):
+    now = time.time()
+    out = []
+    for d in devices():
+        u = d["udid"]
+        if d["state"] != "Shutdown" or u in keep:
+            continue
+        if not d.get("isAvailable", True):
+            out.append((d, "unavailable"))
+            continue
+        if only_clones and not led.get(u, {}).get("created"):
+            continue
+        if now - last_used(u, led) >= days * 86400:
+            out.append((d, f"idle {(now - last_used(u, led)) / 86400:.1f}d"))
+    return out
+
+
+def cmd_prune(args):
+    days = float(args[args.index("--days") + 1]) if "--days" in args else CLONE_DELETE_DAYS
+    led, keep = load_json(LEDGER, {}), keep_set()
+    cands = prune_candidates(days, False, led, keep)
+    if not cands:
+        print(f"nothing to prune (no unkept, shut down sim idle {days:g}+ days)")
+        return
+    total = 0
+    for d, why in cands:
+        gb = size_gb(d["udid"])
+        total += gb
+        print(f"  {gb:5.1f}G  {d['name']}  ({d['udid']})  {why}")
+    if "--yes" not in args:
+        print(f"DRY RUN: would free {total:.1f}G. Re-run with --yes to delete.")
+        return
+    gone = delete([d["udid"] for d, _ in cands])
+    print(f"deleted {len(gone)}/{len(cands)} sims, freed about {total:.1f}G")
+    if len(gone) != len(cands):
+        sys.exit(1)
+
+
+def cmd_sweep(_):
+    led, keep = load_json(LEDGER, {}), keep_set()
+    now = time.time()
+    log = []
+    stale = [d["udid"] for d in devices() if d["state"] == "Booted"
+             and now - last_used(d["udid"], led) >= IDLE_SHUTDOWN_S and not busy_procs(d["udid"])]
+    if stale:
+        log += [f"shutdown {u}" for u in shutdown(stale, "idle 2h")]
+    cands = prune_candidates(CLONE_DELETE_DAYS, True, led, keep)
+    if cands:
+        log += [f"deleted {u}" for u in delete([d["udid"] for d, _ in cands])]
+    sh("xcrun", "simctl", "delete", "unavailable")
+    if log:
+        os.makedirs(STATE, exist_ok=True)
+        with open(LOG, "a") as f:
+            for l in log:
+                f.write(f"{time.strftime('%Y-%m-%d %H:%M')} {l}\n")
+
+
+def cmd_keep(args, add=True):
+    os.makedirs(STATE, exist_ok=True)
+    cur = keep_set()
+    names = {d["udid"]: d["name"] for d in devices()}
+    for u in args:
+        (cur.add if add else cur.discard)(u.upper())
+    with open(KEEP, "w") as f:
+        for u in sorted(cur):
+            f.write(f"{u}  # {names.get(u, '?')}\n")
+    print(f"kept: {len(cur)} sim(s)")
+
+
+def cmd_hook_post(_):
+    try:
+        ev = json.load(sys.stdin)
+    except json.JSONDecodeError:
+        return
+    cmd = (ev.get("tool_input") or {}).get("command") or ""
+    # Only the command counts as a touch, never its output: a `simctl list` or
+    # `sim-tidy status` prints every UDID and must not claim every sim.
+    if not SIM_WORDS.search(cmd) or re.match(r"\s*sim-tidy\b", cmd):
+        return
+    resp = ev.get("tool_response") or {}
+    devs = devices()
+    known = {d["udid"]: d for d in devs}
+    touched = {u.upper() for u in UUID_RE.findall(cmd)} & set(known)
+    for d in devs:  # named, e.g. simctl boot "fashion_hub iPhone 16 Pro" or "booted"
+        if d["state"] == "Booted" and (f'"{d["name"]}"' in cmd or re.search(r"\bbooted\b", cmd)):
+            touched.add(d["udid"])
+    created = set()
+    if re.search(r"simctl\s+(create|clone)\b", cmd):  # new UDID is printed on stdout
+        out = resp.get("stdout", "") if isinstance(resp, dict) else str(resp)
+        created = {u.upper() for u in UUID_RE.findall(out)} & set(known)
+        touched |= created
+    if not touched:
+        return
+    led = load_json(LEDGER, {})
+    for u in touched:
+        e = led.setdefault(u, {})
+        e.update(last_session=ev.get("session_id", ""), last_used=time.time(), name=known[u]["name"])
+        if u in created:
+            e["created"] = True
+    save_ledger(led)
+
+
+def cmd_hook_end(_):
+    try:
+        ev = json.load(sys.stdin)
+    except json.JSONDecodeError:
+        return
+    if ev.get("session_id"):
+        cmd_shutdown(["--session", ev["session_id"]])
+
+
+def main():
+    a = sys.argv[1:]
+    if not a or a[0] in ("-h", "--help", "help"):
+        print(__doc__)
+        return
+    c, rest = a[0], a[1:]
+    {"status": cmd_status, "shutdown": cmd_shutdown, "prune": cmd_prune, "sweep": cmd_sweep,
+     "keep": cmd_keep, "unkeep": lambda r: cmd_keep(r, False),
+     "hook-post": cmd_hook_post, "hook-end": cmd_hook_end}.get(c, lambda _: sys.exit(f"unknown: {c}"))(rest)
+
+
+if __name__ == "__main__":
+    main()

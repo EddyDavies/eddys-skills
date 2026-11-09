@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""Print every Chrome tab that is currently inside an open tab group, as JSON.
+
+Chrome's session files record which tab sits in which group (command 25) but not
+the group's name, so the tab ids are resolved to titles and URLs via AppleScript
+(AppleScript tab ids equal session tab ids). A saved group holding any of these
+tabs is open right now (often a running Claude in Chrome agent) and must not be
+deleted.
+"""
+import glob, json, os, struct, subprocess
+
+CHROME = os.path.expanduser("~/Library/Application Support/Google/Chrome")
+
+
+def grouped_tab_ids(path):
+    d = open(path, "rb").read()
+    p, g, closed = 8, {}, set()
+    while p + 3 <= len(d):
+        sz = struct.unpack_from("<H", d, p)[0]
+        cid, pl = d[p + 2], d[p + 3:p + 2 + sz]
+        p += 2 + sz
+        if cid == 25 and len(pl) >= 25:
+            t, = struct.unpack_from("<i", pl, 0)
+            g[t] = pl[8:24].hex() if pl[24] else None
+        elif cid == 16 and len(pl) >= 4:
+            closed.add(struct.unpack_from("<i", pl, 0)[0])
+    return {t for t, v in g.items() if v and t not in closed}
+
+
+names = json.load(open(os.path.join(CHROME, "Local State")))["profile"]["info_cache"]
+live = {}
+for folder, info in names.items():
+    files = sorted(glob.glob(os.path.join(CHROME, folder, "Sessions", "Session_*")), key=os.path.getmtime)
+    if files:
+        for t in grouped_tab_ids(files[-1]):
+            live[t] = info.get("name")
+
+SCRIPT = '''set out to ""
+tell application "Google Chrome"
+  repeat with w in windows
+    repeat with t in tabs of w
+      set out to out & (id of t) & tab & (title of t) & tab & (URL of t) & linefeed
+    end repeat
+  end repeat
+end tell
+return out'''
+rows = subprocess.run(["osascript", "-e", SCRIPT], capture_output=True, text=True).stdout
+result = []
+for line in rows.splitlines():
+    parts = line.split("\t")
+    if len(parts) == 3 and parts[0].isdigit() and int(parts[0]) in live:
+        result.append({"profile": live[int(parts[0])], "title": parts[1], "url": parts[2]})
+print(json.dumps(result, indent=1))

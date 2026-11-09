@@ -1,0 +1,93 @@
+#!/bin/zsh
+# Gate and launcher for clear-claude-groups. launchd calls it every 2 minutes; it
+# exits at once unless: after 05:00, not done today, under 3 tries today, Chrome
+# running, screen unlocked, and the user idle 4 to 9 minutes (before the display
+# sleeps and locks at 10). `run --now` skips the gate.
+#
+# The clicking happens inside ~/Applications/ClearClaudeGroups.app (built by
+# setup.sh), because launchd jobs get no Screen Recording or Accessibility access;
+# that app holds both grants and calls `run --inapp`.
+set -u
+DIR=${0:A:h:h}
+APP=$HOME/Applications/ClearClaudeGroups.app
+STATE=$HOME/.claude/clear-claude-groups
+mkdir -p $STATE
+LOG=$STATE/run.log
+today=$(date +%F)
+log() { print -r -- "$(date '+%F %T') $*" >> $LOG }
+notify() { osascript -e "display notification \"$1\" with title \"Clear Claude groups\"" }
+
+mode=${1:-gate}
+force=0
+[[ $mode == --now ]] && force=1
+tries=$(cat $STATE/tries-$today 2>/dev/null || print 0)
+
+if [[ $mode != --inapp ]]; then
+  [[ -d $STATE/lock ]] && [[ -z $(find $STATE/lock -maxdepth 0 -mmin +30) ]] && exit 0
+fi
+
+if [[ $mode == gate ]]; then
+  (( 10#$(date +%H) >= 5 )) || exit 0
+  [[ -e $STATE/done-$today ]] && exit 0
+  (( tries < 3 )) || exit 0
+  pgrep -xq "Google Chrome" || exit 0
+  ioreg -n Root -d1 -a | grep -A1 CGSSessionScreenIsLocked | grep -q true && exit 0
+  idle=$(ioreg -c IOHIDSystem | awk '/HIDIdleTime/ {print int($NF/1000000000); exit}')
+  (( idle >= 240 && idle <= 540 )) || exit 0
+fi
+
+if [[ $mode != --inapp ]]; then
+  [[ -d $APP ]] || { log "missing $APP; run setup.sh"; exit 1; }
+  print $force >| $STATE/force
+  /usr/bin/open -g -j -a $APP
+  exit 0
+fi
+force=$(cat $STATE/force 2>/dev/null || print 0)
+
+# `setup.sh probe`: check (and on first use, request) the app's grants, then stop.
+if [[ -e $STATE/probe ]]; then
+  rm -f $STATE/probe
+  {
+    print "shot: $($DIR/bin/shot 2>&1)"
+    print "menus: $(osascript -e 'tell application "System Events" to get name of menu items of menu 1 of menu bar item "Profiles" of menu bar 1 of process "Google Chrome"' 2>&1)"
+  } >| $STATE/probe.out
+  exit 0
+fi
+
+# One run at a time; a lock older than 30 minutes is from a crashed run.
+[[ -d $STATE/lock && -n $(find $STATE/lock -maxdepth 0 -mmin +30) ]] && rmdir $STATE/lock
+mkdir $STATE/lock 2>/dev/null || exit 0
+trap 'rmdir $STATE/lock' EXIT
+
+print $((tries + 1)) >| $STATE/tries-$today
+rm -rf $STATE/shots
+/opt/homebrew/bin/cliclick p:. >| $STATE/lastpos
+live=$($DIR/bin/live-groups 2>&1)
+log "start (try $((tries + 1)), force=$force)"
+
+prompt="Scheduled run of the clear-claude-groups skill. Read $DIR/SKILL.md and follow it exactly.
+Helpers: $DIR/bin/shot, $DIR/bin/act. Nobody is watching; do not ask questions.
+Tabs currently inside OPEN groups (never delete a saved group that contains any of these):
+$live"
+
+cd $STATE
+out=$(claude -p "$prompt" --model sonnet --allowedTools Bash Read \
+  --max-budget-usd 1.5 --no-session-persistence 2>&1)
+print -r -- "$out" > $STATE/last-output.txt
+result=$(print -r -- "$out" | grep -E '^RESULT ' | tail -1)
+log "${result:-RESULT missing; see last-output.txt}"
+
+case $result in
+  *status=ok*)
+    touch $STATE/done-$today
+    n=${${result##*deleted=}%% *}
+    [[ $n == <-> && $n -gt 0 ]] && notify "Deleted $n saved Claude tab groups"
+    ;;
+  *status=user_active*)
+    print $tries >| $STATE/tries-$today   # you came back; doesn't count as a failed try
+    ;;
+  *)
+    notify "Run failed; see ~/.claude/clear-claude-groups/last-output.txt"
+    ;;
+esac
+find $STATE -maxdepth 1 \( -name 'done-*' -o -name 'tries-*' \) -mtime +7 -delete

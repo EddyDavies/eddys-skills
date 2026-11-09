@@ -32,25 +32,25 @@ Those items stay on the Mac's list. dev-1 items have one outcome group: **push b
    Read it once for contradictions (e.g. a rule demanding a sim check dev-1 cannot do).
 2. **One worktree and branch per worker** on dev-1 (`~/code/<repo>/.claude/worktrees/<label>`,
    branch `<prefix>/<topic>-<label>-<date>`). Never two workers in one checkout.
-3. **Launch through herd. Always.** REQUIRED SUB-SKILL: herd-shepherd. Spawn each sheepdog on the
-   workbox with `herd spawn --on workbox ...`. If this herd has no `--on`, stop and tell Eddy
+3. **Launch through hive. Always.** REQUIRED SUB-SKILL: hive-queen. Spawn each bee on the
+   workbox with `hive spawn --on workbox ...`. If this hive has no `--on`, stop and tell Eddy
    verbatim; do not hand-roll tmux, raw `herdr agent start`, or a pasted prompt instead.
 4. **Handoff is in git.** Each worker ends by committing `HANDOFF.md` at its worktree root
    (built, not built, defaults taken, test results, open questions) and pushing its branch.
-5. Before Eddy closes the lid, confirm each sheepdog is running on dev-1 (`herd status`), and
+5. Before Eddy closes the lid, confirm each bee is running on dev-1 (`hive status`), and
    tell him the branch names to expect.
 
 ## Pickup
 
 `git fetch`, list the expected branches, read each `HANDOFF.md`, then hand the remaining
 Mac-only steps (sim pass, merge, deploy, TestFlight) to overnight-handoff's grouped outcomes,
-or straight to Eddy if he is awake. Close the sheepdogs once their branches are read.
+or straight to Eddy if he is awake. Close the bees once their branches are read.
 
 ## Red flags
 
 | Thought | Reality |
 |---|---|
-| "I'll just paste a prompt into dev-1" | Herd or nothing; an unmanaged worker is invisible in the morning. |
+| "I'll just paste a prompt into dev-1" | Hive or nothing; an unmanaged worker is invisible in the morning. |
 | "It's in reports/, dev-1 can read it" | reports/ is git-ignored. Copy it into the brief's refs/. |
 | "See the test accounts in memory" | dev-1 has no memory. Inline it, or keep the item on the Mac. |
 | "All workers can share the clone" | They stash and amend over each other. One worktree each. |

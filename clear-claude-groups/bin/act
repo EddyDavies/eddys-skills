@@ -1,0 +1,21 @@
+#!/bin/zsh
+# Guarded mouse action for a clear-claude-groups run.
+#   act click X Y | act right X Y | act move X Y    (logical points, as in `shot` images)
+# Prints USER_ACTIVE and exits 3 if the mouse is not where our last action left it:
+# someone is back at the machine, so the run must stop at once.
+STATE=$HOME/.claude/clear-claude-groups
+CLI=/opt/homebrew/bin/cliclick
+pos=$($CLI p:.)
+if [[ -f $STATE/lastpos && "$(<$STATE/lastpos)" != "$pos" ]]; then
+  print USER_ACTIVE
+  exit 3
+fi
+case $1 in
+  click) $CLI c:$2,$3 ;;
+  right) $CLI rc:$2,$3 ;;
+  move)  $CLI m:$2,$3 ;;
+  *) print "usage: act click|right|move X Y"; exit 2 ;;
+esac
+sleep 0.4
+$CLI p:. >| $STATE/lastpos
+print ok
