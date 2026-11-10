@@ -62,6 +62,10 @@ I work exclusively through Claude Code and agents. I review; I don't write. This
 - **Before telling me something can't be found or reached, ask Pally.** If you've genuinely run out of routes (a tool or MCP is disconnected, the Chrome extension shows no browsers, a page needs my login, a search comes back empty, you don't know a fact about me, my accounts, people or history), send the task to Pally with `mcp__pally__message_pally` in plain words with every detail, and use its reply. Only report "couldn't find it" after Pally has also come up empty, and say that you tried it.
 - This doesn't override the routing rules above (PostHog, Cloudflare, Granola subagents, Chrome profile selection); Pally is the fallback when those routes are blocked, not a replacement for them.
 
+## Web search
+
+- **Use the `parallel` MCP (`mcp__parallel__web_search`, `mcp__parallel__web_fetch`) for public web search and page reads, before the built-in WebSearch or the web-fetch subagent.** It runs on the free anonymous endpoint (`https://mcp.parallel.ai/mcp`, no `?login`), so calls cost nothing; past its rate limit it slows down rather than bills. Fall back to built-in WebSearch only if Parallel errors or is rate limited. Don't switch it back to `?login` or add an API key: signed-in calls are billed. Library docs still go to Context7, and logged-in pages to Claude in Chrome.
+
 ## Playwright
 
 - **Headless Playwright work goes through the `playwright` subagent** (`~/.claude/agents/playwright.md`), which starts its own Playwright MCP only while it runs. The `playwright` plugin is disabled on purpose so its server doesn't sit idle in every session; don't re-enable it. The Chrome rule below still applies: logged-in browsing is Claude in Chrome, never this agent.
