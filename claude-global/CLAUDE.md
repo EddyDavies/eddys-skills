@@ -2,6 +2,8 @@
 
 This file is public: `~/.claude/CLAUDE.md` is a symlink to `~/code/eddys-skills/claude-global/CLAUDE.md`, which is pushed to a public GitHub repo. Never write secrets, tokens, emails, phone numbers, client names or private details into it; put those in a project CLAUDE.md or memory instead.
 
+**Commit a rule change once it is made and proven to work.** When you change this file or anything else in `~/code/eddys-skills`, check that the change does what it should (run the hook, script or skill it describes, or for a plain wording rule read it back in place), then commit it to `main` in that repo without asking. Commit only your own hunks: other chats edit this file too, so read `git diff` first and leave their changes unstaged. Don't push unless I ask.
+
 ## Python
 
 - Always use `uv` instead of `pip`, `pip install`, `python -m venv`, or `virtualenv`.
@@ -29,6 +31,8 @@ I work exclusively through Claude Code and agents. I review; I don't write. This
 - **Small visual choices can skip the page.** For a single select question whose options fit in a few lines of monospace (ASCII layout, a code snippet, a config block), use the option's `preview` field instead. Previews don't work with `multiSelect`.
 - **More than 4 options:** put every option on the reference page with its code, put the top 3 in the picker, and say in the question that I can type any other code (e.g. `A6`) into "Other". Never drop options just to fit the picker.
 - Process choices (merge now or wait, push or hold, yes or no) stay picker only; no page.
+- **Exception: a dispatched worker never opens a picker.** If your first prompt says you are a dispatched Orca worker (it names a coordinator terminal and a task ID), every picker rule above is off for you, including the choices page followed by a picker. Nobody watches a worker's chat: an open `AskUserQuestion` box blocks the chat and every message the coordinator sends until I find it. Ask the coordinator with the `orca orchestration ask` command from your brief (add `--options "<a,b,c>"` for a fixed set of choices), then end your turn; Orca wakes you with the answer. The coordinator chat is the one that puts the choice to me in a picker. This still holds after your context is summarised and the brief is gone. A hook (`~/.claude/hooks/block-picker-in-orca-worker.sh`) blocks the picker in worker chats.
+- **A coordinator may clear a worker's open question box itself, and nothing else.** Orca's guide says never steer a worker through its terminal; this is the one exception. When a worker you dispatched sits on an open question box (your `send` is not delivered, or the worker fails to start), read its screen with `orca terminal read --terminal <handle> --screen`. If my answer to that exact question is already on record in your chat, pick that option with `orca terminal send --terminal <handle> --text '<option number>'`, read the screen again to confirm the box closed, and carry on with `send`. If I have not answered it, put the question to me in a picker in your chat, then enter my answer the same way. Never type anything else into a worker's terminal, and never pick an option I did not choose.
 
 ## Paid APIs / spending
 
