@@ -14,6 +14,7 @@ A collection of Eddy's Claude Code skills.
 - `dev-tidy`: kills wrangler dev servers and stops OrbStack containers when the chat that started them ends (SessionEnd hook plus a 10 minute launchd sweep that also catches chats closed under Herdr), stops crash looping or idle containers, and quits OrbStack when nothing runs. Run `setup.sh` to install.
 - `linkedin-ideas`: mines recent Claude Code sessions into a markdown bank of LinkedIn post ideas, one file per idea grouped by content pillar, merging repeats into existing ideas. A launchd job runs it every 3 days with headless `claude -p` (file tools only, no MCP). Run `setup.sh` to install; the bank and its pillars live outside the repo.
 - `chrome-email-code-login`: when a Claude in Chrome tab hits an email-code or magic-link sign-in for one of Eddy's own accounts, confirm the profile, request the code, read it from Superhuman (or Gmail) in a new tab in the same Chrome, enter it and carry on, instead of stopping to ask him to sign in. Passwords, SMS codes and money sites stay his.
+- `slack-messages`: drafts a Slack message, shows the exact draft in chat, and sends it through the Slack MCP only after approval of that text.
 - `ui-workshop`: design workshops in two modes. From nothing: decision points, Mobbin references, live HTML mockups with GIFs, wild options, rounds of picks. On an existing page: adds the feedback kit (`feedback-kit.html`: pick cards, Like/Okay/Dislike and notes per item, Copy as prompt and JSON) without rebuilding it.
 
 ## Global CLAUDE.md
